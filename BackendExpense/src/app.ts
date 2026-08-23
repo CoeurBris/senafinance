@@ -45,24 +45,42 @@ const app = express();
 
 app.use(
     cors({
-        origin: [
-            "http://localhost:3008",
-            "http://192.168.8.59:3003",
-            "http://localhost",
-            "http://localhost:3000",
-        ],
+        origin: (origin, callback) => {
+            // Autorise les requêtes sans origine (comme les apps mobiles/Postman)
+            if (!origin) return callback(null, true);
+
+            const allowedOrigins = [
+                "http://localhost:3008",
+                "http://192.168.8.59:3003",
+                "http://localhost",
+                "http://localhost:3000",
+                "http://192.168.8.227:3000",
+            ];
+
+            // Accepte toutes les origines localhost avec n'importe quel port (ex: Flutter Web)
+            if (allowedOrigins.includes(origin) || /^http:\/\/localhost:\d+$/.test(origin)) {
+                callback(null, true);
+            } else {
+                callback(null, true); // Ou callback(new Error("CORS non autorisé")) en prod
+            }
+        },
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Origin", "Content-Type", "Accept", "Authorization"],
     })
 );
-
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ limit: "5mb", extended: true }));
 app.use(cookieParser());
 
-// Fichiers statiques
-app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+// Rendre le dossier uploads accessible publiquement (pour que Flutter
+//  puisse charger les images via une simple URL http)
+app.use(
+    '/uploads',
+    express.static(
+        path.join(__dirname, '../uploads')
+    )
+);
 
 // =====================================================
 // Routes
@@ -87,6 +105,7 @@ const requiredDirs = [
     "uploads/Personnels",
     "uploads/Demandes",
     "uploads/Justificatifs",
+    "uploads/avatars",
 ];
 
 requiredDirs.forEach((dir) => {

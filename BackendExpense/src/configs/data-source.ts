@@ -17,12 +17,14 @@ import { JournalConnexion } from "../modules/gestiondesutilisateurs/entity/journ
 
 dotenv.config();
 
+// console.log("DB_PASSWORD lu:", process.env.DB_PASSWORD);
+
 export const myDataSource = new DataSource({
   type: "postgres",
   host: process.env.DB_HOST || "localhost",
   port: parseInt(process.env.DB_PORT || "5432", 10),
   username: process.env.DB_USER || "postgres",
-  password: process.env.DB_PASSWORD || "123456",
+  password: process.env.DB_PASSWORD || "Admin123",
   database: process.env.DB_NAME || "expense_db",
   entities: [
     User, 

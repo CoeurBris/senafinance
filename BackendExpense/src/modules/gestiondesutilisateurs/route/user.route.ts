@@ -1,4 +1,49 @@
+// import * as express from 'express';
+// import {
+//   createUser,
+//   deleteUser,
+//   getAllAllUsers,
+//   getAllUsers,
+//   getUser,
+//   updatePassword,
+//   updateUser,
+//   ChangerPasswordAdmin,
+//   updatePhoto
+// } from '../controller/user.controller';
+// import { checkPermission, isAuthenticated } from '../../../middlewares/auth.middleware';
+// import { upload } from '../../../configs/multer';
+
+// export const userRoutes = (app: express.Application) => {
+
+//   // 🔹 Récupérer tous les utilisateurs (avec pagination)
+//   app.get('/api/users', isAuthenticated, checkPermission('ListUser'), getAllUsers);
+
+//   // 🔹 Récupérer tous sans pagination
+//   app.get('/api/all/users', getAllAllUsers);
+
+//   // 🔹 Récupérer un utilisateur
+//   app.get('/api/users/:id', getUser);
+
+//   // 🔹 Créer un utilisateur
+//   app.post('/api/users', createUser);
+
+//   // 🔹 Modifier un utilisateur
+//   app.put('/api/users/:id', updateUser);
+
+//   // 🔹 Supprimer un utilisateur
+//   app.delete('/api/users/:id', deleteUser);
+
+//   // 🔹 Modifier son mot de passe
+//   app.post('/api/users/password/:id', updatePassword);
+
+//   // 🔹 Admin change mot de passe
+//   app.put('/api/users/password/admin/:id', ChangerPasswordAdmin);
+
+//   app.post('/api/users/photo', isAuthenticated, upload.single('photo'), updatePhoto);
+// };
+
 import * as express from 'express';
+
 import {
   createUser,
   deleteUser,
@@ -7,33 +52,76 @@ import {
   getUser,
   updatePassword,
   updateUser,
-  ChangerPasswordAdmin
+  ChangerPasswordAdmin,
+  updatePhoto,
 } from '../controller/user.controller';
-import { checkPermission, isAuthenticated } from '../../../middlewares/auth.middleware';
 
-export const userRoutes = (app: express.Application) => {
+import {
+  checkPermission,
+  isAuthenticated,
+} from '../../../middlewares/auth.middleware';
 
-  // 🔹 Récupérer tous les utilisateurs (avec pagination)
-  app.get('/api/users', isAuthenticated, checkPermission('ListUser'), getAllUsers);
+import { upload } from '../../../configs/multer';
 
-  // 🔹 Récupérer tous sans pagination
-  app.get('/api/all/users', getAllAllUsers);
+export const userRoutes = (
+  app: express.Application
+) => {
 
-  // 🔹 Récupérer un utilisateur
-  app.get('/api/users/:id', getUser);
+  // Récupérer tous les utilisateurs avec pagination
+  app.get(
+    '/api/users',
+    isAuthenticated,
+    checkPermission('ListUser'),
+    getAllUsers
+  );
 
-  // 🔹 Créer un utilisateur
-  app.post('/api/users', createUser);
+  // Récupérer tous les utilisateurs sans pagination
+  app.get(
+    '/api/all/users',
+    getAllAllUsers
+  );
 
-  // 🔹 Modifier un utilisateur
-  app.put('/api/users/:id', updateUser);
+  // Récupérer un utilisateur
+  app.get(
+    '/api/users/:id',
+    getUser
+  );
 
-  // 🔹 Supprimer un utilisateur
-  app.delete('/api/users/:id', deleteUser);
+  // Créer un utilisateur
+  app.post(
+    '/api/users',
+    createUser
+  );
 
-  // 🔹 Modifier son mot de passe
-  app.put('/api/users/password/:id', updatePassword);
+  // Modifier un utilisateur
+  app.put(
+    '/api/users/:id',
+    updateUser
+  );
 
-  // 🔹 Admin change mot de passe
-  app.put('/api/users/password/admin/:id', ChangerPasswordAdmin);
+  // Supprimer un utilisateur
+  app.delete(
+    '/api/users/:id',
+    deleteUser
+  );
+
+  // Modifier son mot de passe
+  app.post(
+    '/api/users/password/:id',
+    updatePassword
+  );
+
+  // Admin change le mot de passe
+  app.put(
+    '/api/users/password/admin/:id',
+    ChangerPasswordAdmin
+  );
+
+  // Modifier la photo de profil
+  app.post(
+    '/api/users/photo',
+    isAuthenticated,
+    upload.single('photo'),
+    updatePhoto
+  );
 };

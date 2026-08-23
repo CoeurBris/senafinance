@@ -37,8 +37,8 @@ export class User {
     @IsEmail({}, { message: "L'adresse email est invalide." })
     email?: string;
 
-    @Column({ default: true })
-    etat!: boolean;
+    // @Column({ default: true })
+    // etat!: boolean;
 
     @Column({ nullable: true })
     photoUrl?: string;
@@ -53,20 +53,20 @@ export class User {
     @IsOptional()
     password?: string;
 
-    @Column({ default: 'utilisateur' })
-    typeCompte!: string;
+    // @Column({ default: 'utilisateur' })
+    // typeCompte!: string;
 
-    @Column({ nullable: true })
-    nomPointVente?: string;
+    // @Column({ nullable: true })
+    // nomPointVente?: string;
 
-    @Column({ nullable: true })
-    adressePointVente?: string;
+    // @Column({ nullable: true })
+    // adressePointVente?: string;
 
-    @Column({ nullable: true })
-    numeroAgrement?: string;
+    // @Column({ nullable: true })
+    // numeroAgrement?: string;
 
-    @Column({ nullable: true })
-    marqueId?: string;
+    // @Column({ nullable: true })
+    // marqueId?: string;
 
     @CreateDateColumn()
     createdAt!: Date;
