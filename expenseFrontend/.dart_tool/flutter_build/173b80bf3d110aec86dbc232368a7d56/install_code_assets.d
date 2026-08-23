@@ -1,1 +1,0 @@
- C:\\Users\\utilisateur\\app-depenses\\expenseFrontend\\.dart_tool\\flutter_build\\173b80bf3d110aec86dbc232368a7d56\\native_assets.json: 

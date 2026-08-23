@@ -1,5 +1,9 @@
 import 'dart:io';
 
+import 'package:app_expenses/l10n/app_localizations.dart';
+import 'package:app_expenses/providers/locale_provider.dart';
+import 'package:app_expenses/screens/auth/login_screen.dart';
+import 'package:app_expenses/utils/date_utils.dart';
 import 'package:csv/csv.dart';
 import 'package:excel/excel.dart' hide Border, BorderStyle;
 import 'package:flutter/cupertino.dart';
@@ -7,9 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:expenses/screens/auth/login_screen.dart';
-import 'package:expenses/utils/date_utils.dart';
 import '../core/theme.dart';
 import '../services/auth_service.dart';
 import '../services/expense_service.dart';
@@ -30,8 +31,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _weeklySummary = false;
   bool _cloudBackup = true;
 
-  String _userName = 'Utilisateur';
-  String _userEmail = 'email@exemple.com';
+  String _userName = 'Victoire Hounkpatin';
+  String _userEmail = 'victoire@gmail.com';
   String _currency = 'FCFA';
 
   @override
@@ -54,7 +55,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   String get _initials {
     final parts = _userName.trim().split(' ');
-    if (parts.isEmpty || parts.first.isEmpty) return 'U';
+    if (parts.isEmpty || parts.first.isEmpty) return 'VH';
     if (parts.length == 1) return parts.first[0].toUpperCase();
     return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
   }
@@ -94,6 +95,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
     }
   }
+
+  void _showLanguageDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(AppLocalizations.of(context)!.language),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: const Text('Français'),
+            onTap: () {
+              appLocaleNotifier.value = const Locale('fr');
+              Navigator.pop(ctx);
+            },
+          ),
+          ListTile(
+            title: const Text('English'),
+            onTap: () {
+              appLocaleNotifier.value = const Locale('en');
+              Navigator.pop(ctx);
+            },
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -153,10 +182,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.language_rounded,
                 iconBg: const Color(0xFFFAEEDA),
                 iconColor: const Color(0xFF854F0B),
-                title: 'Langue',
-                subtitle: 'Français',
+                title: AppLocalizations.of(context)!.language,
+                subtitle: AppLocalizations.of(context)!.currentLanguage,
                 isLast: true,
-                onTap: () {},
+                onTap: () {
+                  _showLanguageDialog(context);
+                },
               ),
             ],
           ),

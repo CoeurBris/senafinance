@@ -1,0 +1,10 @@
+{
+  "@@locale": "fr",
+  "appTitle": "SenaTrack",
+  "supportTitle": "Aide & Support",
+  "language": "Langue",
+  "currentLanguage": "Français",
+  "personalInfo": "Informations personnelles",
+  "security": "Sécurité & Mot de passe",
+  "logout": "Déconnexion"
+}

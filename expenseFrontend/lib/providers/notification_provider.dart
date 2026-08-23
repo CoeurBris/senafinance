@@ -1,6 +1,6 @@
+import 'package:app_expenses/models/notification_model.dart';
+import 'package:app_expenses/repositories/notification_repository.dart';
 import 'package:flutter/foundation.dart';
-import 'package:expenses/models/notification_model.dart';
-import 'package:expenses/repositories/notification_repository.dart';
 
 class NotificationProvider extends ChangeNotifier {
   final NotificationRepository _repository;

@@ -1,5 +1,5 @@
+import 'package:app_expenses/core/app_constant.dart';
 import 'package:dio/dio.dart';
-import 'package:expenses/core/app_constant.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

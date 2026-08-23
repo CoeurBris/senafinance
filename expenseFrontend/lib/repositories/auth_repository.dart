@@ -1,5 +1,7 @@
-import 'package:expenses/models/user_model.dart';
-import 'package:expenses/services/auth_service.dart';
+
+
+import 'package:app_expenses/models/user_model.dart';
+import 'package:app_expenses/services/auth_service.dart';
 
 class AuthRepository {
   final AuthService _authService;

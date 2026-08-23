@@ -1,5 +1,5 @@
+import 'package:app_expenses/core/network/dio_client.dart';
 import 'package:dio/dio.dart';
-import 'package:expenses/core/network/dio_client.dart';
 
 class NotificationService {
   final Dio _dio = DioClient().dio;

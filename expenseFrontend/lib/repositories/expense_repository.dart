@@ -1,5 +1,5 @@
-import 'package:expenses/models/expense_model.dart';
-import 'package:expenses/services/expense_service.dart';
+import 'package:app_expenses/models/expense_model.dart';
+import 'package:app_expenses/services/expense_service.dart';
 
 class ExpenseRepository {
   final ExpenseService _expenseService;

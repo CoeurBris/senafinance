@@ -1,8 +1,8 @@
 import 'dart:ui';
-import 'package:expenses/screens/dashboard/dashboard_screen.dart';
-import 'package:expenses/services/auth_service.dart';
+import 'package:app_expenses/screens/auth/register_screen.dart';
+import 'package:app_expenses/screens/dashboard/dashboard_screen.dart';
+import 'package:app_expenses/services/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:expenses/screens/auth/register_screen.dart';
 
 // Assurez-vous d'importer vos services et votre écran principal
 // import 'package:expenses/services/auth_service.dart';

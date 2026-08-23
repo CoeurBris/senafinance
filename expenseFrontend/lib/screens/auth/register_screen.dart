@@ -1,12 +1,7 @@
 import 'dart:ui';
-import 'package:expenses/screens/auth/login_screen.dart';
-import 'package:expenses/services/auth_service.dart';
+import 'package:app_expenses/screens/dashboard/dashboard_screen.dart';
+import 'package:app_expenses/services/auth_service.dart';
 import 'package:flutter/material.dart';
-
-// Assurez-vous d'importer vos services et écrans correspondants
-// import 'package:your_app/services/auth_service.dart';
-// import 'package:your_app/screens/login_screen.dart';
-// import 'package:your_app/screens/dashboard_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -38,7 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   /// Traitement de la création de compte
-  Future<void> _handleRegister() async {
+  void _submitRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
@@ -53,41 +48,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _passwordController.text,
       );
 
-      if (!mounted) return;
-
-      // 2. Notification de succès
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Compte créé avec succès ! Connectez-vous."),
-          backgroundColor: Color(0xFF3B6334),
-        ),
+      // 2. Connexion automatique pour récupérer le JWT Token
+      await _authService.login(
+        _emailController.text.trim(),
+        _passwordController.text,
       );
 
-      // 3. Navigation vers l'écran de connexion
-      Navigator.pushReplacement(
+      if (!mounted) return;
+      // 3. Navigation vers le Dashboard (supprime l'historique de navigation)
+      Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => const DashboardScreen()),
+        (route) => false,
       );
-    } catch (error) {
+    } catch (e) {
       if (!mounted) return;
-
-      // Gestion de l'affichage d'erreur renvoyée par le backend / Dio
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            error.toString().replaceAll('Exception: ', ''),
-          ),
-          backgroundColor: Colors.red.shade700,
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: Colors.red,
         ),
       );
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -202,21 +185,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               }
                               return null;
                             },
-                            decoration: _inputDecoration('Mot de passe').copyWith(
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                  color: Colors.black54,
+                            decoration: _inputDecoration('Mot de passe')
+                                .copyWith(
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                      color: Colors.black54,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _obscurePassword = !_obscurePassword;
+                                      });
+                                    },
+                                  ),
                                 ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscurePassword = !_obscurePassword;
-                                  });
-                                },
-                              ),
-                            ),
                           ),
                           const SizedBox(height: 14),
 
@@ -232,21 +216,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               }
                               return null;
                             },
-                            decoration: _inputDecoration('Confirmer le mot de passe').copyWith(
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscureConfirmPassword
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                  color: Colors.black54,
+                            decoration:
+                                _inputDecoration(
+                                  'Confirmer le mot de passe',
+                                ).copyWith(
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscureConfirmPassword
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                      color: Colors.black54,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _obscureConfirmPassword =
+                                            !_obscureConfirmPassword;
+                                      });
+                                    },
+                                  ),
                                 ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscureConfirmPassword = !_obscureConfirmPassword;
-                                  });
-                                },
-                              ),
-                            ),
                           ),
                           const SizedBox(height: 24),
 
@@ -255,7 +243,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             width: double.infinity,
                             height: 48,
                             child: ElevatedButton(
-                              onPressed: _isLoading ? null : _handleRegister,
+                              onPressed: _isLoading ? null : _submitRegister,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF3B6334),
                                 shape: RoundedRectangleBorder(

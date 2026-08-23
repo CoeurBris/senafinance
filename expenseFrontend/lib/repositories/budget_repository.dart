@@ -1,5 +1,7 @@
-import 'package:expenses/models/budget_model.dart';
-import 'package:expenses/services/budget_service.dart';
+
+
+import 'package:app_expenses/models/budget_model.dart';
+import 'package:app_expenses/services/budget_service.dart';
 
 class BudgetRepository {
   final BudgetService _budgetService;

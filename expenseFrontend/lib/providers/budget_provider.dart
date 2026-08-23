@@ -1,6 +1,6 @@
+import 'package:app_expenses/models/budget_model.dart';
 import 'package:flutter/foundation.dart';
-import 'package:expenses/models/budget_model.dart';
-import 'package:expenses/repositories/budget_repository.dart';
+import 'package:app_expenses/repositories/budget_repository.dart';
 
 class BudgetProvider extends ChangeNotifier {
   final BudgetRepository _repository;
