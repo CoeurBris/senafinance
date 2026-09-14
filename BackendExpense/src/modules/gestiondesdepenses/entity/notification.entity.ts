@@ -10,7 +10,7 @@ import { Expense } from './expense.entity';
 
 @Entity('notifications')
 export class Notification {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   id!: string;
 
   @Column({ nullable: true })

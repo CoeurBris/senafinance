@@ -16,7 +16,7 @@ let Notification = class Notification {
 };
 exports.Notification = Notification;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", String)
 ], Notification.prototype, "id", void 0);
 __decorate([

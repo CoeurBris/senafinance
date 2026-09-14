@@ -6,6 +6,9 @@ import { Category } from "../modules/gestiondesdepenses/entity/category.entity";
 import { Expense } from "../modules/gestiondesdepenses/entity/expense.entity";
 import { Budget } from "../modules/gestiondesdepenses/entity/budget.entity";
 import { Notification as NotificationEntity } from "../modules/gestiondesdepenses/entity/notification.entity";
+import { Transaction } from "../modules/gestiondesdepenses/entity/transaction.entity";
+import { Objectif } from "../modules/gestiondesdepenses/entity/objectif.entity";
+import { Versement } from "../modules/gestiondesdepenses/entity/versement.entity";
 
 // Entités Utilisateurs
 import { User } from "../modules/gestiondesutilisateurs/entity/user.entity";
@@ -36,10 +39,13 @@ export const myDataSource = new DataSource({
     Category, 
     Expense, 
     Budget, 
-    NotificationEntity
+    NotificationEntity,
+    Objectif,
+    Versement, // 👈 Ajout de l'entité Versement
+    Transaction, // 👈 Ajout de l'entité Transaction
   ],
   migrations: ["src/migrations/*.ts"],
   migrationsTableName: "migrations",
   logging: true,
-  synchronize: true,
+  synchronize: false,
 });

@@ -35,7 +35,7 @@ class NotificationProvider extends ChangeNotifier {
   /// Nombre de notifications non lues
   int get unreadCount {
     return _notifications
-        .where((notification) => !notification.lu)
+        .where((notification) => !notification.isRead)
         .length;
   }
 
@@ -57,9 +57,9 @@ class NotificationProvider extends ChangeNotifier {
     }
   }
 
-  /// Récupérer une notification
+   /// Récupérer une notification
   Future<NotificationModel?> loadNotificationById(
-    int id,
+    String id,
   ) async {
     _setLoading(true);
     _error = null;
@@ -72,20 +72,16 @@ class NotificationProvider extends ChangeNotifier {
 
       return notification;
     } catch (e) {
-      _error = e.toString().replaceFirst(
-            'Exception: ',
-            '',
-          );
-
+      _error = e.toString().replaceFirst('Exception: ', '');
       return null;
     } finally {
       _setLoading(false);
     }
   }
 
-  /// Marquer une notification comme lue
+   /// Marquer une notification comme lue
   Future<bool> markAsRead(
-    int id,
+    String id,
   ) async {
     _setLoading(true);
     _error = null;
@@ -99,22 +95,16 @@ class NotificationProvider extends ChangeNotifier {
       );
 
       if (index != -1) {
-        _notifications[index] =
-            updatedNotification;
+        _notifications[index] = updatedNotification;
       }
 
       if (_selectedNotification?.id == id) {
-        _selectedNotification =
-            updatedNotification;
+        _selectedNotification = updatedNotification;
       }
 
       return true;
     } catch (e) {
-      _error = e.toString().replaceFirst(
-            'Exception: ',
-            '',
-          );
-
+      _error = e.toString().replaceFirst('Exception: ', '');
       return false;
     } finally {
       _setLoading(false);
@@ -132,14 +122,14 @@ class NotificationProvider extends ChangeNotifier {
       _notifications = _notifications
           .map(
             (notification) =>
-                notification.copyWith(lu: true),
+                notification.copyWith(isRead: true),
           )
           .toList();
 
       if (_selectedNotification != null) {
         _selectedNotification =
             _selectedNotification!.copyWith(
-          lu: true,
+          isRead: true,
         );
       }
 
@@ -156,9 +146,9 @@ class NotificationProvider extends ChangeNotifier {
     }
   }
 
-  /// Supprimer une notification
+   /// Supprimer une notification
   Future<bool> deleteNotification(
-    int id,
+    String id,
   ) async {
     _setLoading(true);
     _error = null;
@@ -176,11 +166,7 @@ class NotificationProvider extends ChangeNotifier {
 
       return true;
     } catch (e) {
-      _error = e.toString().replaceFirst(
-            'Exception: ',
-            '',
-          );
-
+      _error = e.toString().replaceFirst('Exception: ', '');
       return false;
     } finally {
       _setLoading(false);

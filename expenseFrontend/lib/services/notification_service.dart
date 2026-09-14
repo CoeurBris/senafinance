@@ -7,9 +7,9 @@ class NotificationService {
   /// Récupérer les notifications de l'utilisateur connecté
   Future<List<dynamic>> getNotifications() async {
     try {
-      final response = await _dio.get('/notifications');
-
-      return List<dynamic>.from(response.data);
+      final response = await _dio.get('/notifications/all');
+      final data = response.data['data'] ?? response.data;
+      return List<dynamic>.from(data);
     } on DioException catch (e) {
       throw Exception(DioClient.extractMessage(e));
     }

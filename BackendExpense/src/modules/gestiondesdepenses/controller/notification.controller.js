@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteNotification = exports.updateNotification = exports.getNotificationById = exports.getNotificationsPaginated = exports.getAllNotifications = exports.createNotification = void 0;
+exports.deleteNotification = exports.updateNotification = exports.getNotificationById = exports.getNotificationsPaginated = exports.markAllNotificationsAsRead = exports.markNotificationAsRead = exports.getAllNotifications = exports.createNotification = void 0;
 const class_validator_1 = require("class-validator");
 const data_source_1 = require("../../../configs/data-source");
 const response_1 = require("../../../configs/response");
@@ -34,20 +34,54 @@ const createNotification = (req, res) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.createNotification = createNotification;
 // ====================== GET ALL ======================
+// GET ALL — filtré par utilisateur connecté
 const getAllNotifications = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id; // adapte selon ton middleware d'auth
         const notifications = yield data_source_1.myDataSource.getRepository(notification_entity_1.Notification).find({
+            where: { userId },
             relations: ['relatedExpense'],
             order: { createdAt: 'DESC' },
         });
-        const message = 'La liste des notifications a bien été récupérée.';
-        return (0, response_1.success)(res, 200, notifications, message);
+        return (0, response_1.success)(res, 200, notifications, 'La liste des notifications a bien été récupérée.');
     }
     catch (error) {
-        return (0, response_1.generateServerErrorCode)(res, 500, error, "La liste des notifications n'a pas pu être récupérée. Réessayez dans quelques instants.");
+        return (0, response_1.generateServerErrorCode)(res, 500, error, "La liste des notifications n'a pas pu être récupérée.");
     }
 });
 exports.getAllNotifications = getAllNotifications;
+// PATCH /:id/read
+const markNotificationAsRead = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const notificationRepo = data_source_1.myDataSource.getRepository(notification_entity_1.Notification);
+        const notification = yield notificationRepo.findOne({ where: { id: id } });
+        if (!notification) {
+            return (0, response_1.generateServerErrorCode)(res, 404, "L'ID n'existe pas", "Cette notification n'existe pas.");
+        }
+        notification.isRead = true;
+        const updated = yield notificationRepo.save(notification);
+        return (0, response_1.success)(res, 200, updated, 'Notification marquée comme lue.');
+    }
+    catch (error) {
+        return (0, response_1.generateServerErrorCode)(res, 500, error, "Erreur lors de la mise à jour.");
+    }
+});
+exports.markNotificationAsRead = markNotificationAsRead;
+// PATCH /read-all
+const markAllNotificationsAsRead = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    try {
+        const userId = (_b = req.user) === null || _b === void 0 ? void 0 : _b.id;
+        yield data_source_1.myDataSource.getRepository(notification_entity_1.Notification).update({ userId }, { isRead: true });
+        return (0, response_1.success)(res, 200, null, 'Toutes les notifications ont été marquées comme lues.');
+    }
+    catch (error) {
+        return (0, response_1.generateServerErrorCode)(res, 500, error, "Erreur lors de la mise à jour.");
+    }
+});
+exports.markAllNotificationsAsRead = markAllNotificationsAsRead;
 // ====================== PAGINATED ======================
 const getNotificationsPaginated = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

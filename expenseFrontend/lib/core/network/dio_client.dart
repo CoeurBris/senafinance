@@ -1,12 +1,14 @@
 import 'package:app_expenses/core/app_constant.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class DioClient {
   static final DioClient _instance = DioClient._internal();
 
   late final Dio dio;
+
+  final _storage = const FlutterSecureStorage();
 
   factory DioClient() {
     return _instance;
@@ -28,17 +30,13 @@ class DioClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final prefs = await SharedPreferences.getInstance();
-
-          final token = prefs.getString(AppConstants.tokenKey);
+          final token = await _storage.read(key: AppConstants.tokenKey);
 
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
 
-          debugPrint(
-            'REQUEST: ${options.method} ${options.uri}',
-          );
+          debugPrint('REQUEST: ${options.method} ${options.uri}');
 
           handler.next(options);
         },
@@ -51,10 +49,14 @@ class DioClient {
           handler.next(response);
         },
 
-        onError: (DioException error, handler) {
-          debugPrint(
-            'DIO ERROR: ${error.requestOptions.uri}',
-          );
+        onError: (DioException error, handler) async {
+          debugPrint('DIO ERROR: ${error.requestOptions.uri}');
+
+          // Session expirée ou token invalide → on nettoie le stockage
+          if (error.response?.statusCode == 401) {
+            await _storage.delete(key: AppConstants.tokenKey);
+            await _storage.delete(key: AppConstants.userKey);
+          }
 
           handler.next(error);
         },

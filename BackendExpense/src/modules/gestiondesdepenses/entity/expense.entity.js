@@ -17,7 +17,7 @@ let Expense = class Expense {
 };
 exports.Expense = Expense;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", String)
 ], Expense.prototype, "id", void 0);
 __decorate([
@@ -33,8 +33,8 @@ __decorate([
     __metadata("design:type", Number)
 ], Expense.prototype, "amount", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' }),
-    __metadata("design:type", Date)
+    (0, typeorm_1.Column)({ type: 'date' }),
+    __metadata("design:type", String)
 ], Expense.prototype, "date", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),

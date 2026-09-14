@@ -16,7 +16,7 @@ let Category = class Category {
 };
 exports.Category = Category;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", String)
 ], Category.prototype, "id", void 0);
 __decorate([

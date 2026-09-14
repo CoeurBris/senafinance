@@ -10,7 +10,7 @@ import { Expense } from './expense.entity';
 
 @Entity('categories')
 export class Category {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   id!: string;
 
   @Column({ unique: true })

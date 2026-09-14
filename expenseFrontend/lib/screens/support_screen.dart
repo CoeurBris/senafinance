@@ -219,7 +219,6 @@ class _SupportScreenState extends State<SupportScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)?.supportTitle ?? 'Aide & Support'),
-        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

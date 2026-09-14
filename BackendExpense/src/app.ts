@@ -19,6 +19,9 @@ import { categoryRoutes } from "./modules/gestiondesdepenses/route/category.rout
 import { expenseRoutes } from "./modules/gestiondesdepenses/route/expense.route";
 import { notificationRoutes } from "./modules/gestiondesdepenses/route/notification.route";
 import { budgetRoutes } from "./modules/gestiondesdepenses/route/budget.route";
+import { objectifRoutes } from "./modules/gestiondesdepenses/route/objectif.route";
+import { dashboardRoutes } from "./modules/gestiondesdepenses/route/dashboard.route";
+import { transactionRoutes } from "./modules/gestiondesdepenses/route/transaction.route";
 
 // =====================================================
 // Initialisation de la base de données
@@ -53,8 +56,8 @@ app.use(
                 "http://localhost:3008",
                 "http://192.168.8.59:3003",
                 "http://localhost",
-                "http://localhost:3000",
-                "http://192.168.8.227:3000",
+                "http://localhost:3005",
+                "http://192.168.8.60:3005", 
             ];
 
             // Accepte toutes les origines localhost avec n'importe quel port (ex: Flutter Web)
@@ -96,6 +99,9 @@ userRolesRoutes(app);
 categoryRoutes(app);
 expenseRoutes(app);
 notificationRoutes(app);
+objectifRoutes(app);
+dashboardRoutes(app);
+transactionRoutes(app);
 
 // =====================================================
 // Création des dossiers nécessaires

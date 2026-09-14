@@ -13,7 +13,7 @@ import { Notification } from './notification.entity';
 
 @Entity('expenses')
 export class Expense {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   id!: string;
 
   @Column({ nullable: true })
@@ -25,8 +25,8 @@ export class Expense {
   @Column('decimal', { precision: 12, scale: 2 })
   amount!: number;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  date!: Date;
+  @Column({ type: 'date' })
+  date!: string;
 
   @Column({ nullable: true })
   title?: string;

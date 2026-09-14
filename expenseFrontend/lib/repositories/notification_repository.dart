@@ -24,25 +24,14 @@ class NotificationRepository {
   }
 
   /// Récupérer une notification
-  Future<NotificationModel> getNotificationById(
-    int id,
-  ) async {
-    final data =
-        await _notificationService.getNotificationById(
-      id.toString(),
-    );
-
+  Future<NotificationModel> getNotificationById(String id) async {
+    final data = await _notificationService.getNotificationById(id);
     return NotificationModel.fromJson(data);
   }
 
   /// Marquer une notification comme lue
-  Future<NotificationModel> markAsRead(
-    int id,
-  ) async {
-    final data = await _notificationService.markAsRead(
-      id.toString(),
-    );
-
+  Future<NotificationModel> markAsRead(String id) async {
+    final data = await _notificationService.markAsRead(id);
     return NotificationModel.fromJson(data);
   }
 
@@ -52,9 +41,7 @@ class NotificationRepository {
   }
 
   /// Supprimer une notification
-  Future<void> deleteNotification(int id) async {
-    await _notificationService.deleteNotification(
-      id.toString(),
-    );
+  Future<void> deleteNotification(String id) async {
+    await _notificationService.deleteNotification(id);
   }
 }

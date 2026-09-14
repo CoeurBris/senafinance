@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app_expenses/core/app_constant.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -7,12 +8,13 @@ class AuthService {
   /// Ajustement automatique selon la plateforme sans crash sur le Web
   static String get baseUrl {
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://192.168.8.227:3000/api'; // Émulateur Android
+      return 'http://192.168.8.60:3005/api'; // Émulateur Android
     }
-    return 'http://localhost:3000/api'; // iOS, Web ou Desktop
+    return 'http://localhost:3005/api'; // iOS, Web ou Desktop
   }
 
-  static const String _tokenKey = 'auth_token';
+  // static const String _tokenKey = 'auth_token';
+  static const String _tokenKey = AppConstants.tokenKey;
   static const String _userNameKey = 'user_name';
   static const String _userEmailKey = 'user_email';
   static const String _userIdKey = 'user_id';
@@ -59,7 +61,8 @@ class AuthService {
     final data = jsonDecode(response.body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final userData = data['data'] ?? data['user'];
+      final userData = data['data']?['user'] ?? data['user'];
+      // final userData = data['data'] ?? data['user'];
       if (userData != null) {
         await saveUserData(
           userData['id']?.toString() ?? userData['_id']?.toString(),
@@ -90,7 +93,8 @@ class AuthService {
         await saveToken(token);
       }
 
-      final userData = data['data'] ?? data['user'];
+      final userData = data['data']?['user'] ?? data['user'];
+      // final userData = data['data'] ?? data['user'];
       if (userData != null) {
         await saveUserData(
           userData['id']?.toString() ?? userData['_id']?.toString(),

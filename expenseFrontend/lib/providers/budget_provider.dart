@@ -5,9 +5,8 @@ import 'package:app_expenses/repositories/budget_repository.dart';
 class BudgetProvider extends ChangeNotifier {
   final BudgetRepository _repository;
 
-  BudgetProvider({
-    BudgetRepository? repository,
-  }) : _repository = repository ?? BudgetRepository();
+  BudgetProvider({BudgetRepository? repository})
+    : _repository = repository ?? BudgetRepository();
 
   List<BudgetModel> _budgets = [];
 
@@ -17,14 +16,17 @@ class BudgetProvider extends ChangeNotifier {
 
   BudgetModel? _selectedBudget;
 
-  List<BudgetModel> get budgets =>
-      List.unmodifiable(_budgets);
+  List<BudgetModel> get budgets => List.unmodifiable(_budgets);
 
   bool get isLoading => _isLoading;
 
   String? get error => _error;
-
+  
   BudgetModel? get selectedBudget => _selectedBudget;
+
+  double get totalBudgets {
+    return _budgets.fold(0, (total, budget) => total + budget.montant);
+  }
 
   /// Charger tous les budgets
   Future<void> loadBudgets() async {
@@ -34,36 +36,25 @@ class BudgetProvider extends ChangeNotifier {
     try {
       _budgets = await _repository.getBudgets();
     } catch (e) {
-      _error = e.toString().replaceFirst(
-            'Exception: ',
-            '',
-          );
+      _error = e.toString().replaceFirst('Exception: ', '');
     } finally {
       _setLoading(false);
     }
   }
 
   /// Récupérer un budget
-  Future<BudgetModel?> loadBudgetById(
-    int id,
-  ) async {
+  Future<BudgetModel?> loadBudgetById(int id) async {
     _setLoading(true);
     _error = null;
 
     try {
-      final budget =
-          await _repository.getBudgetById(
-        id.toString(),
-      );
+      final budget = await _repository.getBudgetById(id.toString());
 
       _selectedBudget = budget;
 
       return budget;
     } catch (e) {
-      _error = e.toString().replaceFirst(
-            'Exception: ',
-            '',
-          );
+      _error = e.toString().replaceFirst('Exception: ', '');
 
       return null;
     } finally {
@@ -72,24 +63,18 @@ class BudgetProvider extends ChangeNotifier {
   }
 
   /// Créer un budget
-  Future<bool> createBudget(
-    BudgetModel budget,
-  ) async {
+  Future<bool> createBudget(BudgetModel budget) async {
     _setLoading(true);
     _error = null;
 
     try {
-      final createdBudget =
-          await _repository.createBudget(budget);
+      final createdBudget = await _repository.createBudget(budget);
 
       _budgets.add(createdBudget);
 
       return true;
     } catch (e) {
-      _error = e.toString().replaceFirst(
-            'Exception: ',
-            '',
-          );
+      _error = e.toString().replaceFirst('Exception: ', '');
 
       return false;
     } finally {
@@ -98,19 +83,14 @@ class BudgetProvider extends ChangeNotifier {
   }
 
   /// Modifier un budget
-  Future<bool> updateBudget(
-    BudgetModel budget,
-  ) async {
+  Future<bool> updateBudget(BudgetModel budget) async {
     _setLoading(true);
     _error = null;
 
     try {
-      final updatedBudget =
-          await _repository.updateBudget(budget);
+      final updatedBudget = await _repository.updateBudget(budget);
 
-      final index = _budgets.indexWhere(
-        (item) => item.id == updatedBudget.id,
-      );
+      final index = _budgets.indexWhere((item) => item.id == updatedBudget.id);
 
       if (index != -1) {
         _budgets[index] = updatedBudget;
@@ -122,10 +102,7 @@ class BudgetProvider extends ChangeNotifier {
 
       return true;
     } catch (e) {
-      _error = e.toString().replaceFirst(
-            'Exception: ',
-            '',
-          );
+      _error = e.toString().replaceFirst('Exception: ', '');
 
       return false;
     } finally {
@@ -134,18 +111,14 @@ class BudgetProvider extends ChangeNotifier {
   }
 
   /// Supprimer un budget
-  Future<bool> deleteBudget(
-    int id,
-  ) async {
+  Future<bool> deleteBudget(int id) async {
     _setLoading(true);
     _error = null;
 
     try {
       await _repository.deleteBudget(id);
 
-      _budgets.removeWhere(
-        (budget) => budget.id == id,
-      );
+      _budgets.removeWhere((budget) => budget.id == id);
 
       if (_selectedBudget?.id == id) {
         _selectedBudget = null;
@@ -153,10 +126,7 @@ class BudgetProvider extends ChangeNotifier {
 
       return true;
     } catch (e) {
-      _error = e.toString().replaceFirst(
-            'Exception: ',
-            '',
-          );
+      _error = e.toString().replaceFirst('Exception: ', '');
 
       return false;
     } finally {

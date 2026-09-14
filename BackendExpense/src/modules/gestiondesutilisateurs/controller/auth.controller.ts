@@ -32,7 +32,7 @@ export const Register = async (req: Request, res: Response) => {
 
         const user = await userRepository.save({
             nom,
-            prenom: prenom || nom,
+            prenom: prenom || null,
             telephone: telephone || `N/A-${Date.now()}`,
             email,
             password: await bcryptjs.hash(password, 12),

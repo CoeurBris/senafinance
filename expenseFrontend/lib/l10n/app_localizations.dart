@@ -98,11 +98,95 @@ abstract class AppLocalizations {
     Locale('fr'),
   ];
 
-  /// No description provided for @appTitle.
+  /// No description provided for @settingsTitle.
   ///
   /// In fr, this message translates to:
-  /// **'SenaTrack'**
-  String get appTitle;
+  /// **'Paramètres'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Français'**
+  String get settingsSubtitle;
+
+  /// No description provided for @general.
+  ///
+  /// In fr, this message translates to:
+  /// **'Général'**
+  String get general;
+
+  /// No description provided for @currency.
+  ///
+  /// In fr, this message translates to:
+  /// **'Devise'**
+  String get currency;
+
+  /// No description provided for @appearance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apparence'**
+  String get appearance;
+
+  /// No description provided for @theme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Thème'**
+  String get theme;
+
+  /// No description provided for @notifications.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @expenseReminders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappels de dépenses'**
+  String get expenseReminders;
+
+  /// No description provided for @expenseRemindersSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque soir à 20h'**
+  String get expenseRemindersSubtitle;
+
+  /// No description provided for @budgetAlerts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alertes budget'**
+  String get budgetAlerts;
+
+  /// No description provided for @budgetAlertsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À 80% du seuil'**
+  String get budgetAlertsSubtitle;
+
+  /// No description provided for @dataAndSecurity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données & Sécurité'**
+  String get dataAndSecurity;
+
+  /// No description provided for @exportData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter les données'**
+  String get exportData;
+
+  /// No description provided for @exportDataSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'CSV ou Excel'**
+  String get exportDataSubtitle;
+
+  /// No description provided for @account.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte'**
+  String get account;
 
   /// No description provided for @supportTitle.
   ///
@@ -110,35 +194,125 @@ abstract class AppLocalizations {
   /// **'Aide & Support'**
   String get supportTitle;
 
+  /// No description provided for @logoutAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se déconnecter'**
+  String get logoutAction;
+
   /// No description provided for @language.
   ///
   /// In fr, this message translates to:
   /// **'Langue'**
   String get language;
 
-  /// No description provided for @currentLanguage.
+  /// No description provided for @themeLight.
   ///
   /// In fr, this message translates to:
-  /// **'Français'**
-  String get currentLanguage;
+  /// **'Clair'**
+  String get themeLight;
 
-  /// No description provided for @personalInfo.
+  /// No description provided for @themeDark.
   ///
   /// In fr, this message translates to:
-  /// **'Informations personnelles'**
-  String get personalInfo;
+  /// **'Sombre'**
+  String get themeDark;
 
-  /// No description provided for @security.
+  /// No description provided for @themeSystem.
   ///
   /// In fr, this message translates to:
-  /// **'Sécurité & Mot de passe'**
-  String get security;
+  /// **'Système'**
+  String get themeSystem;
 
-  /// No description provided for @logout.
+  /// No description provided for @themeSystemOption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Automatique (système)'**
+  String get themeSystemOption;
+
+  /// No description provided for @closeAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer'**
+  String get closeAction;
+
+  /// No description provided for @cancelAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get cancelAction;
+
+  /// No description provided for @logoutDialogTitle.
   ///
   /// In fr, this message translates to:
   /// **'Déconnexion'**
-  String get logout;
+  String get logoutDialogTitle;
+
+  /// No description provided for @logoutConfirmMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir vous déconnecter ?'**
+  String get logoutConfirmMessage;
+
+  /// No description provided for @currencyFcfa.
+  ///
+  /// In fr, this message translates to:
+  /// **'Franc CFA (FCFA)'**
+  String get currencyFcfa;
+
+  /// No description provided for @currencyUsd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dollar américain (\$)'**
+  String get currencyUsd;
+
+  /// No description provided for @currencyEur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Euro (€)'**
+  String get currencyEur;
+
+  /// No description provided for @currencyGbp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Livre sterling (£)'**
+  String get currencyGbp;
+
+  /// No description provided for @currencyMad.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dirham marocain (MAD)'**
+  String get currencyMad;
+
+  /// No description provided for @autoLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Auto'**
+  String get autoLabel;
+
+  /// No description provided for @manualLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Manuel'**
+  String get manualLabel;
+
+  /// No description provided for @csvExportError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'export CSV : {error}'**
+  String csvExportError(Object error);
+
+  /// No description provided for @excelExportError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'export Excel : {error}'**
+  String excelExportError(Object error);
+
+  /// No description provided for @appVersionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion Dépenses v1.0.0'**
+  String get appVersionLabel;
 }
 
 class _AppLocalizationsDelegate

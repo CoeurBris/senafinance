@@ -35,22 +35,48 @@ export const createNotification = async (req: Request, res: Response) => {
 };
 
 // ====================== GET ALL ======================
+// GET ALL — filtré par utilisateur connecté
 export const getAllNotifications = async (req: Request, res: Response) => {
   try {
+    const userId = (req as any).user?.id; // adapte selon ton middleware d'auth
     const notifications = await myDataSource.getRepository(Notification).find({
+      where: { userId },
       relations: ['relatedExpense'],
       order: { createdAt: 'DESC' },
     });
-
-    const message = 'La liste des notifications a bien été récupérée.';
-    return success(res, 200, notifications, message);
+    return success(res, 200, notifications, 'La liste des notifications a bien été récupérée.');
   } catch (error: any) {
-    return generateServerErrorCode(
-      res,
-      500,
-      error,
-      "La liste des notifications n'a pas pu être récupérée. Réessayez dans quelques instants."
-    );
+    return generateServerErrorCode(res, 500, error, "La liste des notifications n'a pas pu être récupérée.");
+  }
+};
+
+// PATCH /:id/read
+export const markNotificationAsRead = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const notificationRepo = myDataSource.getRepository(Notification);
+    const notification = await notificationRepo.findOne({ where: { id: id as any } });
+
+    if (!notification) {
+      return generateServerErrorCode(res, 404, "L'ID n'existe pas", "Cette notification n'existe pas.");
+    }
+
+    notification.isRead = true;
+    const updated = await notificationRepo.save(notification);
+    return success(res, 200, updated, 'Notification marquée comme lue.');
+  } catch (error: any) {
+    return generateServerErrorCode(res, 500, error, "Erreur lors de la mise à jour.");
+  }
+};
+
+// PATCH /read-all
+export const markAllNotificationsAsRead = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    await myDataSource.getRepository(Notification).update({ userId }, { isRead: true });
+    return success(res, 200, null, 'Toutes les notifications ont été marquées comme lues.');
+  } catch (error: any) {
+    return generateServerErrorCode(res, 500, error, "Erreur lors de la mise à jour.");
   }
 };
 

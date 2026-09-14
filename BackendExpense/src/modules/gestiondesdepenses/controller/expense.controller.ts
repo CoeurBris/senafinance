@@ -5,13 +5,76 @@ import { generateServerErrorCode, success } from '../../../configs/response';
 import { checkRelationsOneToMany } from '../../../configs/checkRelationsOneToManyBeforDelete';
 import { paginationAndRechercheInit } from '../../../configs/paginationAndRechercheInit';
 import { Expense } from '../entity/expense.entity';
+import { Budget } from '../entity/budget.entity';
+import { Notification } from '../entity/notification.entity';
 
 // ====================== CREATE ======================
 export const createExpense = async (req: Request, res: Response) => {
   try {
     const expenseRepository = myDataSource.getRepository(Expense);
+    const notificationRepo = myDataSource.getRepository(Notification);
     const expense = expenseRepository.create(req.body as Partial<Expense>);
     const savedExpense = (await expenseRepository.save(expense)) as Expense;
+
+    // Pas de budgetId direct : on retrouve le budget actif via
+    // categoryId + userId (+ période startDate/endDate si définie).
+    if (savedExpense.categoryId && savedExpense.userId) {
+      const budgetRepo = myDataSource.getRepository(Budget);
+
+      let budgetQuery = budgetRepo
+        .createQueryBuilder('b')
+        .where('b.categoryId = :categoryId', { categoryId: savedExpense.categoryId })
+        .andWhere('b.userId = :userId', { userId: Number(savedExpense.userId) });
+
+      if (savedExpense.date) {
+        budgetQuery = budgetQuery
+          .andWhere('(b.startDate IS NULL OR b.startDate <= :date)', { date: savedExpense.date })
+          .andWhere('(b.endDate IS NULL OR b.endDate >= :date)', { date: savedExpense.date });
+      }
+
+      const budget = await budgetQuery.getOne();
+
+      if (budget && budget.amountLimit > 0) {
+        const totalSpent = await myDataSource
+          .getRepository(Expense)
+          .createQueryBuilder('e')
+          .where('e.categoryId = :categoryId', { categoryId: budget.categoryId })
+          .andWhere('e.userId = :userId', { userId: savedExpense.userId })
+          .select('SUM(e.amount)', 'total')
+          .getRawOne();
+
+        const spent = Number(totalSpent?.total ?? 0);
+        const ratio = spent / budget.amountLimit;
+
+        if (ratio >= 0.8) {
+          // Anti-spam : ne pas recréer l'alerte si une notification
+          // "budget_alert" non lue existe déjà pour ce budget.
+          const recentAlerts = await notificationRepo.find({
+            where: {
+              userId: savedExpense.userId,
+              type: 'budget_alert',
+              isRead: false,
+            },
+          });
+
+          const alreadyNotified = recentAlerts.some(
+            (n) => n.data?.budgetId === budget.id
+          );
+
+          if (!alreadyNotified) {
+            const notification = notificationRepo.create({
+              userId: savedExpense.userId,
+              title: 'Alerte Budget',
+              body: `Vous avez atteint ${Math.round(ratio * 100)}% de votre budget "${budget.name ?? 'sans nom'}".`,
+              type: 'budget_alert',
+              relatedExpenseId: savedExpense.id,
+              data: { budgetId: budget.id },
+            });
+            await notificationRepo.save(notification);
+          }
+        }
+      }
+    }
 
     const message = `La dépense a bien été enregistrée.`;
     return success(res, 201, savedExpense, message);
@@ -33,6 +96,61 @@ export const createExpense = async (req: Request, res: Response) => {
     );
   }
 };
+// export const createExpense = async (req: Request, res: Response) => {
+//   try {
+//     const expenseRepository = myDataSource.getRepository(Expense);
+//     const notificationRepo = myDataSource.getRepository(Notification);
+//     const expense = expenseRepository.create(req.body as Partial<Expense>);
+//     const savedExpense = (await expenseRepository.save(expense)) as Expense;
+
+//     // Récupère le budget concerné (adapte selon ta relation Expense -> Budget)
+//     const budget = await myDataSource.getRepository(Budget).findOne({
+//       where: { id: savedExpense.budgetId },
+//     });
+
+//     if (budget) {
+//       const totalSpent = await myDataSource
+//         .getRepository(Expense)
+//         .createQueryBuilder('e')
+//         .where('e.budgetId = :budgetId', { budgetId: budget.id })
+//         .select('SUM(e.amount)', 'total')
+//         .getRawOne();
+
+//       const spent = Number(totalSpent?.total ?? 0);
+//       const ratio = spent / budget.amount;
+
+//       if (ratio >= 0.8) {
+//         const notification = notificationRepo.create({
+//           userId: savedExpense.userId,
+//           title: 'Alerte Budget',
+//           body: `Vous avez atteint ${Math.round(ratio * 100)}% de votre budget "${budget.name}".`,
+//           type: 'budget_alert',
+//           relatedExpenseId: savedExpense.id,
+//         });
+//         await notificationRepo.save(notification);
+//       }
+//     }
+
+//     const message = `La dépense a bien été enregistrée.`;
+//     return success(res, 201, savedExpense, message);
+//   } catch (error: any) {
+//     if (error instanceof ValidationError) {
+//       return generateServerErrorCode(
+//         res,
+//         400,
+//         error,
+//         'Les données de la dépense sont invalides.'
+//       );
+//     }
+
+//     return generateServerErrorCode(
+//       res,
+//       500,
+//       error,
+//       "La dépense n'a pas pu être ajoutée. Réessayez dans quelques instants."
+//     );
+//   }
+// };
 
 // ====================== GET ALL ======================
 export const getAllExpenses = async (req: Request, res: Response) => {

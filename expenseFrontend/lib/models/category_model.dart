@@ -1,57 +1,35 @@
 class CategoryModel {
   final int? id;
   final String nom;
+  final String? icone;
+  final String? couleur;
   final String? description;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
 
   CategoryModel({
     this.id,
     required this.nom,
+    this.icone,
+    this.couleur,
     this.description,
-    this.createdAt,
-    this.updatedAt,
   });
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(
-      id: json['id'],
-      nom: json['nom'] ?? '',
-      description: json['description'],
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'].toString())
-          : null,
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.tryParse(json['updatedAt'].toString())
-          : null,
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? ''),
+      nom: (json['name'] ?? json['nom'] ?? '').toString(),
+      icone: json['icon']?.toString(),
+      couleur: json['color']?.toString(),
+      description: json['description']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
-      'nom': nom,
-      'description': description,
-      if (createdAt != null)
-        'createdAt': createdAt!.toIso8601String(),
-      if (updatedAt != null)
-        'updatedAt': updatedAt!.toIso8601String(),
+      'name': nom,
+      if (description != null) 'description': description,
     };
   }
 
-  CategoryModel copyWith({
-    int? id,
-    String? nom,
-    String? description,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) {
-    return CategoryModel(
-      id: id ?? this.id,
-      nom: nom ?? this.nom,
-      description: description ?? this.description,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+  void operator [](String other) {}
 }

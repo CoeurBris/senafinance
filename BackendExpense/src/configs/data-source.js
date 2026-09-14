@@ -11,6 +11,9 @@ const category_entity_1 = require("../modules/gestiondesdepenses/entity/category
 const expense_entity_1 = require("../modules/gestiondesdepenses/entity/expense.entity");
 const budget_entity_1 = require("../modules/gestiondesdepenses/entity/budget.entity");
 const notification_entity_1 = require("../modules/gestiondesdepenses/entity/notification.entity");
+const transaction_entity_1 = require("../modules/gestiondesdepenses/entity/transaction.entity");
+const objectif_entity_1 = require("../modules/gestiondesdepenses/entity/objectif.entity");
+const versement_entity_1 = require("../modules/gestiondesdepenses/entity/versement.entity");
 // Entités Utilisateurs
 const user_entity_1 = require("../modules/gestiondesutilisateurs/entity/user.entity");
 const permission_entity_1 = require("../modules/gestiondesutilisateurs/entity/permission.entity");
@@ -37,10 +40,13 @@ exports.myDataSource = new typeorm_1.DataSource({
         category_entity_1.Category,
         expense_entity_1.Expense,
         budget_entity_1.Budget,
-        notification_entity_1.Notification
+        notification_entity_1.Notification,
+        objectif_entity_1.Objectif,
+        versement_entity_1.Versement, // 👈 Ajout de l'entité Versement
+        transaction_entity_1.Transaction, // 👈 Ajout de l'entité Transaction
     ],
     migrations: ["src/migrations/*.ts"],
     migrationsTableName: "migrations",
     logging: true,
-    synchronize: true,
+    synchronize: false,
 });

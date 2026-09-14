@@ -16,12 +16,65 @@ const response_1 = require("../../../configs/response");
 const checkRelationsOneToManyBeforDelete_1 = require("../../../configs/checkRelationsOneToManyBeforDelete");
 const paginationAndRechercheInit_1 = require("../../../configs/paginationAndRechercheInit");
 const expense_entity_1 = require("../entity/expense.entity");
+const budget_entity_1 = require("../entity/budget.entity");
+const notification_entity_1 = require("../entity/notification.entity");
 // ====================== CREATE ======================
 const createExpense = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     try {
         const expenseRepository = data_source_1.myDataSource.getRepository(expense_entity_1.Expense);
+        const notificationRepo = data_source_1.myDataSource.getRepository(notification_entity_1.Notification);
         const expense = expenseRepository.create(req.body);
         const savedExpense = (yield expenseRepository.save(expense));
+        // Pas de budgetId direct : on retrouve le budget actif via
+        // categoryId + userId (+ période startDate/endDate si définie).
+        if (savedExpense.categoryId && savedExpense.userId) {
+            const budgetRepo = data_source_1.myDataSource.getRepository(budget_entity_1.Budget);
+            let budgetQuery = budgetRepo
+                .createQueryBuilder('b')
+                .where('b.categoryId = :categoryId', { categoryId: savedExpense.categoryId })
+                .andWhere('b.userId = :userId', { userId: Number(savedExpense.userId) });
+            if (savedExpense.date) {
+                budgetQuery = budgetQuery
+                    .andWhere('(b.startDate IS NULL OR b.startDate <= :date)', { date: savedExpense.date })
+                    .andWhere('(b.endDate IS NULL OR b.endDate >= :date)', { date: savedExpense.date });
+            }
+            const budget = yield budgetQuery.getOne();
+            if (budget && budget.amountLimit > 0) {
+                const totalSpent = yield data_source_1.myDataSource
+                    .getRepository(expense_entity_1.Expense)
+                    .createQueryBuilder('e')
+                    .where('e.categoryId = :categoryId', { categoryId: budget.categoryId })
+                    .andWhere('e.userId = :userId', { userId: savedExpense.userId })
+                    .select('SUM(e.amount)', 'total')
+                    .getRawOne();
+                const spent = Number((_a = totalSpent === null || totalSpent === void 0 ? void 0 : totalSpent.total) !== null && _a !== void 0 ? _a : 0);
+                const ratio = spent / budget.amountLimit;
+                if (ratio >= 0.8) {
+                    // Anti-spam : ne pas recréer l'alerte si une notification
+                    // "budget_alert" non lue existe déjà pour ce budget.
+                    const recentAlerts = yield notificationRepo.find({
+                        where: {
+                            userId: savedExpense.userId,
+                            type: 'budget_alert',
+                            isRead: false,
+                        },
+                    });
+                    const alreadyNotified = recentAlerts.some((n) => { var _a; return ((_a = n.data) === null || _a === void 0 ? void 0 : _a.budgetId) === budget.id; });
+                    if (!alreadyNotified) {
+                        const notification = notificationRepo.create({
+                            userId: savedExpense.userId,
+                            title: 'Alerte Budget',
+                            body: `Vous avez atteint ${Math.round(ratio * 100)}% de votre budget "${(_b = budget.name) !== null && _b !== void 0 ? _b : 'sans nom'}".`,
+                            type: 'budget_alert',
+                            relatedExpenseId: savedExpense.id,
+                            data: { budgetId: budget.id },
+                        });
+                        yield notificationRepo.save(notification);
+                    }
+                }
+            }
+        }
         const message = `La dépense a bien été enregistrée.`;
         return (0, response_1.success)(res, 201, savedExpense, message);
     }
@@ -33,6 +86,55 @@ const createExpense = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.createExpense = createExpense;
+// export const createExpense = async (req: Request, res: Response) => {
+//   try {
+//     const expenseRepository = myDataSource.getRepository(Expense);
+//     const notificationRepo = myDataSource.getRepository(Notification);
+//     const expense = expenseRepository.create(req.body as Partial<Expense>);
+//     const savedExpense = (await expenseRepository.save(expense)) as Expense;
+//     // Récupère le budget concerné (adapte selon ta relation Expense -> Budget)
+//     const budget = await myDataSource.getRepository(Budget).findOne({
+//       where: { id: savedExpense.budgetId },
+//     });
+//     if (budget) {
+//       const totalSpent = await myDataSource
+//         .getRepository(Expense)
+//         .createQueryBuilder('e')
+//         .where('e.budgetId = :budgetId', { budgetId: budget.id })
+//         .select('SUM(e.amount)', 'total')
+//         .getRawOne();
+//       const spent = Number(totalSpent?.total ?? 0);
+//       const ratio = spent / budget.amount;
+//       if (ratio >= 0.8) {
+//         const notification = notificationRepo.create({
+//           userId: savedExpense.userId,
+//           title: 'Alerte Budget',
+//           body: `Vous avez atteint ${Math.round(ratio * 100)}% de votre budget "${budget.name}".`,
+//           type: 'budget_alert',
+//           relatedExpenseId: savedExpense.id,
+//         });
+//         await notificationRepo.save(notification);
+//       }
+//     }
+//     const message = `La dépense a bien été enregistrée.`;
+//     return success(res, 201, savedExpense, message);
+//   } catch (error: any) {
+//     if (error instanceof ValidationError) {
+//       return generateServerErrorCode(
+//         res,
+//         400,
+//         error,
+//         'Les données de la dépense sont invalides.'
+//       );
+//     }
+//     return generateServerErrorCode(
+//       res,
+//       500,
+//       error,
+//       "La dépense n'a pas pu être ajoutée. Réessayez dans quelques instants."
+//     );
+//   }
+// };
 // ====================== GET ALL ======================
 const getAllExpenses = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

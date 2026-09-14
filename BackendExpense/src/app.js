@@ -21,6 +21,9 @@ const category_route_1 = require("./modules/gestiondesdepenses/route/category.ro
 const expense_route_1 = require("./modules/gestiondesdepenses/route/expense.route");
 const notification_route_1 = require("./modules/gestiondesdepenses/route/notification.route");
 const budget_route_1 = require("./modules/gestiondesdepenses/route/budget.route");
+const objectif_route_1 = require("./modules/gestiondesdepenses/route/objectif.route");
+const dashboard_route_1 = require("./modules/gestiondesdepenses/route/dashboard.route");
+const transaction_route_1 = require("./modules/gestiondesdepenses/route/transaction.route");
 // =====================================================
 // Initialisation de la base de données
 // =====================================================
@@ -48,8 +51,8 @@ app.use((0, cors_1.default)({
             "http://localhost:3008",
             "http://192.168.8.59:3003",
             "http://localhost",
-            "http://localhost:3000",
-            "http://192.168.8.227:3000",
+            "http://localhost:3005",
+            "http://192.168.8.60:3005",
         ];
         // Accepte toutes les origines localhost avec n'importe quel port (ex: Flutter Web)
         if (allowedOrigins.includes(origin) || /^http:\/\/localhost:\d+$/.test(origin)) {
@@ -82,6 +85,9 @@ app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../
 (0, category_route_1.categoryRoutes)(app);
 (0, expense_route_1.expenseRoutes)(app);
 (0, notification_route_1.notificationRoutes)(app);
+(0, objectif_route_1.objectifRoutes)(app);
+(0, dashboard_route_1.dashboardRoutes)(app);
+(0, transaction_route_1.transactionRoutes)(app);
 // =====================================================
 // Création des dossiers nécessaires
 // =====================================================

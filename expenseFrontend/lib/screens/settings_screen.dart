@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:app_expenses/l10n/app_localizations.dart';
+import 'package:app_expenses/providers/currency_provider.dart';
 import 'package:app_expenses/providers/locale_provider.dart';
+import 'package:app_expenses/providers/theme_provider.dart';
 import 'package:app_expenses/screens/auth/login_screen.dart';
 import 'package:app_expenses/utils/date_utils.dart';
 import 'package:csv/csv.dart';
@@ -28,37 +30,104 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   bool _remindersEnabled = true;
   bool _budgetAlerts = true;
-  bool _weeklySummary = false;
-  bool _cloudBackup = true;
 
-  String _userName = 'Victoire Hounkpatin';
-  String _userEmail = 'victoire@gmail.com';
+  // String _userName = 'Utilisateur';
+  // String _userEmail = 'utilisateur@gmail.com';
   String _currency = 'FCFA';
+
+  String _themeLabel(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.light:
+        return 'Clair';
+      case ThemeMode.dark:
+        return 'Sombre';
+      case ThemeMode.system:
+        return 'Système';
+    }
+  }
+
+  void _showThemeSheet(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final themes = [
+      (
+        ThemeMode.system,
+        Icons.brightness_auto_rounded,
+        'Automatique (système)',
+      ),
+      (ThemeMode.light, Icons.light_mode_rounded, 'Clair'),
+      (ThemeMode.dark, Icons.dark_mode_rounded, 'Sombre'),
+    ];
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'Thème',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: cs.onSurface,
+          ),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: themes.map((t) {
+              final selected = appThemeNotifier.value == t.$1;
+              return ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                leading: Icon(t.$2, color: cs.primary),
+                title: Text(t.$3, style: TextStyle(color: cs.onSurface)),
+                trailing: selected
+                    ? Icon(Icons.check, color: cs.primary)
+                    : null,
+                onTap: () async {
+                  await setThemeMode(t.$1);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                  setState(() {}); // rafraîchit le sous-titre de la ligne
+                },
+              );
+            }).toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Fermer'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    // _loadUserData();
   }
 
-  Future<void> _loadUserData() async {
-    final name = await _authService.getUserName();
-    final email = await _authService.getUserEmail();
+  // Future<void> _loadUserData() async {
+  //   // final name = await _authService.getUserName();
+  //   // final email = await _authService.getUserEmail();
 
-    if (mounted) {
-      setState(() {
-        if (name != null && name.isNotEmpty) _userName = name;
-        if (email != null && email.isNotEmpty) _userEmail = email;
-      });
-    }
-  }
+  //   if (mounted) {
+  //     setState(() {
+  //       // if (name != null && name.isNotEmpty) _userName = name;
+  //       // if (email != null && email.isNotEmpty) _userEmail = email;
+  //     });
+  //   }
+  // }
 
-  String get _initials {
-    final parts = _userName.trim().split(' ');
-    if (parts.isEmpty || parts.first.isEmpty) return 'VH';
-    if (parts.length == 1) return parts.first[0].toUpperCase();
-    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
-  }
+  // String get _initials {
+  //   // final parts = _userName.trim().split(' ');
+  //   if (parts.isEmpty || parts.first.isEmpty) return 'VH';
+  //   if (parts.length == 1) return parts.first[0].toUpperCase();
+  //   return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+  // }
 
   // ── Action Déconnexion ─────────────────────────────────
   Future<void> _logout() async {
@@ -66,7 +135,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Déconnexion', style: TextStyle(fontWeight: FontWeight.w600)),
+        title: const Text(
+          'Déconnexion',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
         actions: [
           TextButton(
@@ -76,8 +148,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFE24B4A),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              backgroundColor: AppColors.danger,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             child: const Text('Déconnexion'),
           ),
@@ -97,97 +171,90 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showLanguageDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(AppLocalizations.of(context)!.language),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            title: const Text('Français'),
-            onTap: () {
-              appLocaleNotifier.value = const Locale('fr');
-              Navigator.pop(ctx);
-            },
-          ),
-          ListTile(
-            title: const Text('English'),
-            onTap: () {
-              appLocaleNotifier.value = const Locale('en');
-              Navigator.pop(ctx);
-            },
-          ),
-        ],
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.settingsTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('Français'),
+              onTap: () async {
+                appLocaleNotifier.value = const Locale('fr');
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setString('pref_locale', 'fr');
+                // ignore: use_build_context_synchronously
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('English'),
+              onTap: () async {
+                appLocaleNotifier.value = const Locale('en');
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setString('pref_locale', 'en');
+                // ignore: use_build_context_synchronously
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      // Pas de backgroundColor en dur : hérite de scaffoldBackgroundColor
+      // (appTheme = clair, appDarkTheme = sombre) selon le thème actif.
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: BackButton(
-          color: Colors.black87,
-          onPressed: widget.onBack,
-        ),
-        title: const Text(
+        // Pas de backgroundColor/elevation en dur : hérite de appBarTheme.
+        leading: BackButton(color: cs.onSurface, onPressed: widget.onBack),
+        title: Text(
           'Paramètres',
           style: TextStyle(
-            color: Colors.black87,
+            color: cs.onSurface,
             fontSize: 18,
             fontWeight: FontWeight.w500,
           ),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(0.5),
-          child: Container(color: const Color(0xFFE5E5E5), height: 0.5),
+          child: Container(color: cs.outline, height: 0.5),
         ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _ProfileCard(
-            userName: _userName,
-            userEmail: _userEmail,
-            initials: _initials,
-          ),
-          const SizedBox(height: 20),
-
+          // _ProfileCard(
+          //   userName: _userName,
+          //   userEmail: _userEmail,
+          //   initials: _initials,
+          // ),
+          // const SizedBox(height: 20),
           const _SectionLabel(label: 'Général'),
           const SizedBox(height: 8),
           _SettingsCard(
             children: [
               _NavRow(
-                icon: Icons.person_outline_rounded,
-                iconBg: const Color(0xFFE6F1FB),
-                iconColor: const Color(0xFF185FA5),
-                title: "Nom d'affichage",
-                subtitle: _userName,
-                onTap: () => _showEditNameSheet(context),
-              ),
-              _NavRow(
                 icon: Icons.monetization_on_outlined,
-                iconBg: const Color(0xFFE1F5EE),
-                iconColor: AppColors.primary,
+                accent: AppColors.primary,
                 title: 'Devise',
                 subtitle: _currency,
                 onTap: () => _showCurrencySheet(context),
               ),
               _NavRow(
                 icon: Icons.language_rounded,
-                iconBg: const Color(0xFFFAEEDA),
-                iconColor: const Color(0xFF854F0B),
-                title: AppLocalizations.of(context)!.language,
-                subtitle: AppLocalizations.of(context)!.currentLanguage,
+                accent: AppColors.warning,
+                title: AppLocalizations.of(context)!.settingsTitle,
+                subtitle: AppLocalizations.of(context)!.settingsSubtitle,
                 isLast: true,
-                onTap: () {
-                  _showLanguageDialog(context);
-                },
+                onTap: () => _showLanguageDialog(context),
               ),
             ],
           ),
@@ -199,11 +266,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _NavRow(
                 icon: Icons.contrast_rounded,
-                iconBg: const Color(0xFFEEEDFE),
-                iconColor: const Color(0xFF534AB7),
+                accent: const Color(0xFF534AB7),
                 title: 'Thème',
-                subtitle: 'Système (clair)',
-                trailing: const _Pill(label: 'Auto'),
+                subtitle: _themeLabel(appThemeNotifier.value),
+                trailing: _Pill(
+                  label: appThemeNotifier.value == ThemeMode.system
+                      ? 'Auto'
+                      : 'Manuel',
+                ),
                 isLast: true,
                 onTap: () => _showThemeSheet(context),
               ),
@@ -217,8 +287,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _ToggleRow(
                 icon: Icons.notifications_outlined,
-                iconBg: const Color(0xFFE1F5EE),
-                iconColor: const Color(0xFF0F6E56),
+                accent: AppColors.primary,
                 title: 'Rappels de dépenses',
                 subtitle: 'Chaque soir à 20h',
                 value: _remindersEnabled,
@@ -226,22 +295,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               _ToggleRow(
                 icon: Icons.warning_amber_rounded,
-                iconBg: const Color(0xFFFCEBEB),
-                iconColor: const Color(0xFFA32D2D),
+                accent: AppColors.danger,
                 title: 'Alertes budget',
                 subtitle: 'À 80% du seuil',
                 value: _budgetAlerts,
                 onChanged: (v) => setState(() => _budgetAlerts = v),
-              ),
-              _ToggleRow(
-                icon: Icons.description_outlined,
-                iconBg: const Color(0xFFF1EFE8),
-                iconColor: const Color(0xFF5F5E5A),
-                title: 'Résumé hebdomadaire',
-                subtitle: 'Chaque lundi matin',
-                value: _weeklySummary,
                 isLast: true,
-                onChanged: (v) => setState(() => _weeklySummary = v),
               ),
             ],
           ),
@@ -253,21 +312,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _NavRow(
                 icon: Icons.file_download_outlined,
-                iconBg: const Color(0xFFE1F5EE),
-                iconColor: const Color(0xFF0F6E56),
+                accent: AppColors.primary,
                 title: 'Exporter les données',
                 subtitle: 'CSV ou Excel',
-                onTap: () => _showExportSheet(context),
-              ),
-              _ToggleRow(
-                icon: Icons.cloud_upload_outlined,
-                iconBg: const Color(0xFFF1EFE8),
-                iconColor: const Color(0xFF5F5E5A),
-                title: 'Sauvegarde cloud',
-                subtitle: "Dernière sync: aujourd'hui",
-                value: _cloudBackup,
                 isLast: true,
-                onChanged: (v) => setState(() => _cloudBackup = v),
+                onTap: () => _showExportSheet(context),
               ),
             ],
           ),
@@ -279,23 +328,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _NavRow(
                 icon: Icons.logout_rounded,
-                iconBg: const Color(0xFFFCEBEB),
-                iconColor: const Color(0xFFE24B4A),
+                accent: AppColors.danger,
                 title: 'Se déconnecter',
-                titleColor: const Color(0xFFE24B4A),
-                isLast: false,
-                onTap: _logout,
-              ),
-              _NavRow(
-                icon: Icons.delete_outline_rounded,
-                iconBg: const Color(0xFFFCEBEB),
-                iconColor: const Color(0xFFE24B4A),
-                title: 'Supprimer le compte',
-                titleColor: const Color(0xFFE24B4A),
-                subtitle: 'Action irréversible',
-                subtitleColor: const Color(0xFFE24B4A).withValues(alpha: 0.7),
+                titleColor: AppColors.danger,
                 isLast: true,
-                onTap: () => _showDeleteConfirm(context),
+                onTap: _logout,
               ),
             ],
           ),
@@ -304,7 +341,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Center(
             child: Text(
               'Gestion Dépenses v1.0.0',
-              style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+              style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
             ),
           ),
           const SizedBox(height: 16),
@@ -390,71 +427,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  // ── Dialogs ─────────────────────────────────────────────
-
-  void _showEditNameSheet(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        final controller = TextEditingController(text: _userName);
-        return AlertDialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text(
-            "Nom d'affichage",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: TextField(
-              controller: controller,
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: 'Votre nom',
-                filled: true,
-                fillColor: const Color(0xFFF5F5F5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Annuler'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                final newName = controller.text.trim();
-                if (newName.isNotEmpty) {
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setString('user_name', newName);
-                  if (mounted) {
-                    setState(() {
-                      _userName = newName;
-                    });
-                  }
-                }
-                if (ctx.mounted) Navigator.pop(ctx);
-              },
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.info,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Enregistrer'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _showCurrencySheet(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     const currencies = [
       ('FCFA', 'Franc CFA (FCFA)'),
       ('USD', 'Dollar américain (\$)'),
@@ -468,9 +442,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
+        title: Text(
           'Devise',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: cs.onSurface,
+          ),
         ),
         content: SizedBox(
           width: double.maxFinite,
@@ -480,17 +458,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 .map(
                   (c) => ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-                    title: Text(c.$2),
+                    title: Text(c.$2, style: TextStyle(color: cs.onSurface)),
                     trailing: Text(
                       c.$1,
-                      style: const TextStyle(
-                        color: Color(0xFF888780),
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
                         fontSize: 13,
                       ),
                     ),
-                    onTap: () {
+                    onTap: () async {
+                      appCurrencyNotifier.value = c.$1;
                       setState(() => _currency = c.$1);
-                      Navigator.pop(ctx);
+                      await _setStringPref('pref_currency', c.$1);
+                      if (ctx.mounted) Navigator.pop(ctx);
                     },
                   ),
                 )
@@ -507,49 +487,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showThemeSheet(BuildContext context) {
-    const themes = [
-      (Icons.brightness_auto_rounded, 'Automatique (système)'),
-      (Icons.light_mode_rounded, 'Clair'),
-      (Icons.dark_mode_rounded, 'Sombre'),
-    ];
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          'Thème',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: themes
-                .map(
-                  (t) => ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-                    leading: Icon(t.$1, color: const Color(0xFF534AB7)),
-                    title: Text(t.$2),
-                    onTap: () => Navigator.pop(ctx),
-                  ),
-                )
-                .toList(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Fermer'),
-          ),
-        ],
-      ),
-    );
+  Future<void> _setStringPref(String key, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
   }
 
   void _showExportSheet(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
@@ -560,9 +504,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'Exporter les données',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface,
+                ),
               ),
               const SizedBox(height: 16),
               Row(
@@ -571,8 +519,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: _ExportButton(
                       icon: Icons.table_chart_outlined,
                       label: 'CSV',
-                      color: const Color(0xFF0F6E56),
-                      bg: const Color(0xFFE1F5EE),
+                      color: AppColors.primary,
                       onTap: () {
                         Navigator.pop(ctx);
                         _exportCSV(context);
@@ -584,8 +531,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: _ExportButton(
                       icon: Icons.grid_on_outlined,
                       label: 'Excel',
-                      color: const Color(0xFF185FA5),
-                      bg: const Color(0xFFE6F1FB),
+                      color: AppColors.info,
                       onTap: () {
                         Navigator.pop(ctx);
                         _exportExcel(context);
@@ -608,134 +554,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
-  void _showDeleteConfirm(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          'Supprimer le compte',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        content: const SizedBox(
-          width: double.maxFinite,
-          child: Text(
-            'Cette action est irréversible. Toutes vos données seront supprimées définitivement.',
-            style: TextStyle(color: Color(0xFF888780)),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx),
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFE24B4A),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text('Supprimer'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-// Widgets réutilisables
-// ─────────────────────────────────────────────
-
-class _ProfileCard extends StatelessWidget {
-  final String userName;
-  final String userEmail;
-  final String initials;
-
-  const _ProfileCard({
-    required this.userName,
-    required this.userEmail,
-    required this.initials,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E5E5), width: 0.5),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFFE6F1FB),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              initials,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF0C447C),
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  userName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  userEmail,
-                  style: const TextStyle(fontSize: 13, color: Color(0xFF888780)),
-                ),
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE6F1FB),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    'Compte personnel',
-                    style: TextStyle(fontSize: 11, color: Color(0xFF185FA5)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(
-            Icons.chevron_right_rounded,
-            color: Colors.black38,
-            size: 20,
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _SectionLabel extends StatelessWidget {
@@ -744,14 +562,15 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(left: 4),
       child: Text(
         label.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w500,
-          color: Color(0xFF888780),
+          color: cs.onSurfaceVariant,
           letterSpacing: 0.8,
         ),
       ),
@@ -765,11 +584,12 @@ class _SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E5E5), width: 0.5),
+        border: Border.all(color: cs.outline, width: 0.5),
       ),
       clipBehavior: Clip.hardEdge,
       child: Column(children: children),
@@ -780,30 +600,27 @@ class _SettingsCard extends StatelessWidget {
 class _NavRow extends StatelessWidget {
   const _NavRow({
     required this.icon,
-    required this.iconBg,
-    required this.iconColor,
+    required this.accent,
     required this.title,
     this.subtitle,
     this.trailing,
     this.titleColor,
-    this.subtitleColor,
     this.isLast = false,
     required this.onTap,
   });
 
   final IconData icon;
-  final Color iconBg;
-  final Color iconColor;
+  final Color accent;
   final String title;
   final String? subtitle;
   final Widget? trailing;
   final Color? titleColor;
-  final Color? subtitleColor;
   final bool isLast;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -811,13 +628,11 @@ class _NavRow extends StatelessWidget {
         decoration: BoxDecoration(
           border: isLast
               ? null
-              : const Border(
-                  bottom: BorderSide(color: Color(0xFFF0F0F0), width: 0.5),
-                ),
+              : Border(bottom: BorderSide(color: cs.outline, width: 0.5)),
         ),
         child: Row(
           children: [
-            _IconBox(bg: iconBg, color: iconColor, icon: icon),
+            _IconBox(color: accent, icon: icon),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -827,7 +642,7 @@ class _NavRow extends StatelessWidget {
                     title,
                     style: TextStyle(
                       fontSize: 14,
-                      color: titleColor ?? Colors.black87,
+                      color: titleColor ?? cs.onSurface,
                     ),
                   ),
                   if (subtitle != null) ...[
@@ -836,7 +651,7 @@ class _NavRow extends StatelessWidget {
                       subtitle!,
                       style: TextStyle(
                         fontSize: 12,
-                        color: subtitleColor ?? const Color(0xFF888780),
+                        color: cs.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -848,7 +663,7 @@ class _NavRow extends StatelessWidget {
                   Icons.chevron_right_rounded,
                   color: titleColor != null
                       ? titleColor!.withValues(alpha: 0.5)
-                      : Colors.black26,
+                      : cs.onSurfaceVariant,
                   size: 18,
                 ),
           ],
@@ -861,8 +676,7 @@ class _NavRow extends StatelessWidget {
 class _ToggleRow extends StatelessWidget {
   const _ToggleRow({
     required this.icon,
-    required this.iconBg,
-    required this.iconColor,
+    required this.accent,
     required this.title,
     this.subtitle,
     required this.value,
@@ -871,8 +685,7 @@ class _ToggleRow extends StatelessWidget {
   });
 
   final IconData icon;
-  final Color iconBg;
-  final Color iconColor;
+  final Color accent;
   final String title;
   final String? subtitle;
   final bool value;
@@ -881,18 +694,17 @@ class _ToggleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         border: isLast
             ? null
-            : const Border(
-                bottom: BorderSide(color: Color(0xFFF0F0F0), width: 0.5),
-              ),
+            : Border(bottom: BorderSide(color: cs.outline, width: 0.5)),
       ),
       child: Row(
         children: [
-          _IconBox(bg: iconBg, color: iconColor, icon: icon),
+          _IconBox(color: accent, icon: icon),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -900,16 +712,13 @@ class _ToggleRow extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  style: TextStyle(fontSize: 14, color: cs.onSurface),
                 ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 1),
                   Text(
                     subtitle!,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF888780),
-                    ),
+                    style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                   ),
                 ],
               ],
@@ -927,18 +736,18 @@ class _ToggleRow extends StatelessWidget {
 }
 
 class _IconBox extends StatelessWidget {
-  const _IconBox({required this.bg, required this.color, required this.icon});
-  final Color bg;
+  const _IconBox({required this.color, required this.icon});
   final Color color;
   final IconData icon;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: 32,
       height: 32,
       decoration: BoxDecoration(
-        color: bg,
+        color: color.withValues(alpha: isDark ? 0.22 : 0.12),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(icon, color: color, size: 16),
@@ -952,15 +761,16 @@ class _Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1EFE8),
+        color: cs.onSurfaceVariant.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 12, color: Color(0xFF888780)),
+        style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
       ),
     );
   }
@@ -971,24 +781,23 @@ class _ExportButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.color,
-    required this.bg,
     required this.onTap,
   });
   final IconData icon;
   final String label;
   final Color color;
-  final Color bg;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: bg,
+          color: color.withValues(alpha: isDark ? 0.20 : 0.12),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(

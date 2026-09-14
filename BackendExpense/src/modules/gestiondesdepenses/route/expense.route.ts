@@ -10,12 +10,12 @@ import {
 
 export const expenseRoutes = (router: Router) => {
   // Collection & Création
-  router.post('/expenses', createExpense);
-  router.get('/expenses/all', getAllExpenses);
-  router.get('/expenses', getExpensesPaginated);
+  router.post('/api/expenses', createExpense);
+  router.get('/api/expenses/all', getAllExpenses);
+  router.get('/api/expenses', getExpensesPaginated);
 
   // Éléments individuels
-  router.get('/expenses/:id', getExpenseById);
-  router.put('/expenses/:id', updateExpense);
-  router.delete('/expenses/:id', deleteExpense);
+  router.get('/api/expenses/:id', getExpenseById);
+  router.put('/api/expenses/:id', updateExpense);
+  router.delete('/api/expenses/:id', deleteExpense);
 };

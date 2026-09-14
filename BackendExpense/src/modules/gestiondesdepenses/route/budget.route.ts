@@ -10,12 +10,12 @@ import {
 
 export const budgetRoutes = (router: Router) => {
   // Collection & Création
-  router.post('/budgets', createBudget);
-  router.get('/budgets/all', getAllBudgets);
-  router.get('/budgets', getBudgetsPaginated);
+  router.post('/api/budgets', createBudget);
+  router.get('/api/budgets/all', getAllBudgets);
+  router.get('/api/budgets', getBudgetsPaginated);
 
   // Éléments individuels
-  router.get('/budgets/:id', getBudgetById);
-  router.put('/budgets/:id', updateBudget);
-  router.delete('/budgets/:id', deleteBudget);
+  router.get('/api/budgets/:id', getBudgetById);
+  router.put('/api/budgets/:id', updateBudget);
+  router.delete('/api/budgets/:id', deleteBudget);
 };

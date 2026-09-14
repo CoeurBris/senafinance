@@ -8,17 +8,21 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Category } from './category.entity';
+import { User } from '../../gestiondesutilisateurs/entity/user.entity';
 
 @Entity('budgets')
 export class Budget {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-  @Column({ nullable: true })
-  userId?: string;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  name?: string;
 
-  @Column({ nullable: true })
-  categoryId?: string;
+  @Column({ type: 'int', nullable: true })
+  userId?: number;
+
+  @Column({ type: 'int', nullable: true })
+  categoryId?: number;
 
   @Column('decimal', { precision: 12, scale: 2 })
   amountLimit!: number;
@@ -26,11 +30,11 @@ export class Budget {
   @Column({ nullable: true, type: 'text' })
   description?: string;
 
-  @Column({ type: 'timestamp', nullable: true })
-  startDate?: Date;
+  @Column({ type: 'date', nullable: true })
+  startDate?: string;
 
-  @Column({ type: 'timestamp', nullable: true })
-  endDate?: Date;
+  @Column({ type: 'date', nullable: true })
+  endDate?: string;
 
   @CreateDateColumn()
   createdAt!: Date;
@@ -41,4 +45,8 @@ export class Budget {
   @ManyToOne(() => Category, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'categoryId' })
   category?: Category;
+
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'userId' })
+  user?: User;
 }

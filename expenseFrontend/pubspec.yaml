@@ -1,7 +1,7 @@
 name: app_expenses
 description: "SenaTrack - Application de gestion des dépenses"
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.0.0+1
 
 environment:
   sdk: ^3.11.3
@@ -26,6 +26,8 @@ dependencies:
   dio: ^5.11.0
   http: ^1.6.0
   flutter_secure_storage: ^10.3.1
+  provider: ^6.1.2
+  timeago: ^3.7.1
 
 dev_dependencies:
   flutter_test:
@@ -37,7 +39,8 @@ flutter:
   generate: true # Active la génération automatique de traductions
 
   assets:
-    - assets/images/
+    - assets/images/logo_romas0.png
+    - assets/images/green_flowers_bg.png
 
   fonts:
     - family: PlusJakartaSans

@@ -71,7 +71,7 @@ const Register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         const user = yield userRepository.save({
             nom,
-            prenom: prenom || nom,
+            prenom: prenom || null,
             telephone: telephone || `N/A-${Date.now()}`,
             email,
             password: yield bcryptjs.hash(password, 12),
