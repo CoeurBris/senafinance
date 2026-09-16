@@ -87,27 +87,34 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              decoration: const BoxDecoration(
-                // Dégradé affiché tant que/si l'image ne s'affiche pas
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFF6B9E5E), Color(0xFF2E5A27)],
-                ),
-              ),
-              child: Image.asset(
-                'assets/images/green_flowers_bg.png',
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-                // Si l'asset est introuvable, on garde le dégradé au lieu
-                // de planter / d'afficher du noir.
-                errorBuilder: (context, error, stackTrace) {
-                  return const SizedBox.shrink();
-                },
-              ),
+              color: Colors.white,
             ),
           ),
+          // Positioned.fill(
+          //   child: Container(
+          //     width: MediaQuery.of(context).size.width,
+          //     height: MediaQuery.of(context).size.height,
+          //     decoration: const BoxDecoration(
+          //       // Dégradé affiché tant que/si l'image ne s'affiche pas
+          //       gradient: LinearGradient(
+          //         begin: Alignment.topCenter,
+          //         end: Alignment.bottomCenter,
+          //         colors: [Color(0xFF6B9E5E), Color(0xFF2E5A27)],
+          //       ),
+          //     ),
+          //     // child: Image.asset(
+          //     //   'assets/images/green_flowers_bg.png',
+          //     //   fit: BoxFit.cover,
+          //     //   width: double.infinity,
+          //     //   height: double.infinity,
+          //     //   // Si l'asset est introuvable, on garde le dégradé au lieu
+          //     //   // de planter / d'afficher du noir.
+          //     //   errorBuilder: (context, error, stackTrace) {
+          //     //     return const SizedBox.shrink();
+          //     //   },
+          //     // ),
+          //   ),
+          // ),
 
           // 2. Contenu centré avec effet de verre
           Center(
@@ -246,7 +253,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                         value: _rememberMe,
                                         activeColor: const Color(0xFF3B6334),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(2),
+                                          borderRadius: BorderRadius.circular(
+                                            2,
+                                          ),
                                         ),
                                         onChanged: (value) {
                                           setState(() {
@@ -330,7 +339,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     'Ou connectez-vous avec',
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: Colors.black.withValues(alpha: 0.6),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.6,
+                                      ),
                                     ),
                                   ),
                                 ),

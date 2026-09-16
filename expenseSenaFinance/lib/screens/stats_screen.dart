@@ -107,15 +107,6 @@ class _EvolutionPoint {
   const _EvolutionPoint({required this.label, required this.amount});
 }
 
-// class _Advice {
-//   final AdviceType type;
-//   final String text;
-//   const _Advice({required this.type, required this.text});
-// }
-
-/// Palette de secours utilisée quand une catégorie n'a pas de couleur
-/// définie côté back-end. Ces teintes restent volontairement vives et
-/// identiques entre thème clair/sombre (comme des "tags" de catégorie).
 const List<Color> _fallbackPalette = [
   Color(0xFF8B7CF6),
   Color(0xFF4FC3F7),
@@ -204,21 +195,13 @@ IconData _iconForCategory(String name) {
 /// ==========================================================================
 /// PALETTE THEME-AWARE
 /// ==========================================================================
-///
-/// Contrairement à une palette figée, ces couleurs sont calculées à partir
-/// de `Theme.of(context).colorScheme`, exactement comme le fait le reste de
-/// l'app (`Theme.of(context).colorScheme.surface`,
-/// `Theme.of(context).colorScheme.onSurface`, etc.) : l'écran suit donc
-/// automatiquement le thème clair/sombre choisi par l'utilisateur.
+
 class _Palette {
   final ColorScheme cs;
   _Palette(BuildContext context) : cs = Theme.of(context).colorScheme;
 
   bool get isDark => cs.brightness == Brightness.dark;
 
-  // Fond de l'écran et fond des cartes : mêmes valeurs que le reste de
-  // l'app (colorScheme.surface), avec un léger contraste entre les deux
-  // en jouant sur une bordure fine plutôt qu'une couleur figée.
   Color get bg => cs.surface;
   Color get card => cs.surface;
   Color get border => cs.outlineVariant.withValues(alpha: isDark ? 0.4 : 0.6);
@@ -228,20 +211,12 @@ class _Palette {
 
   Color get chipBg => cs.onSurface.withValues(alpha: 0.06);
 
-  // États "sélectionné" (chip de période, avatar) : on s'appuie sur la
-  // couleur primaire du thème plutôt que sur une teinte figée, pour rester
-  // cohérent avec le Material 3 de l'app.
   Color get accent => cs.primary;
   Color get onAccent => cs.onPrimary;
 
-  // Tooltip du graphique : inverseSurface garantit un bon contraste quel
-  // que soit le thème (clair -> tooltip sombre, sombre -> tooltip clair).
   Color get tooltipBg => cs.inverseSurface;
   Color get tooltipText => cs.onInverseSurface;
 
-  // Couleurs sémantiques (revenus/dépenses/alertes) : la teinte reste la
-  // même entre les deux thèmes (reconnaissable), seul le fond translucide
-  // s'adapte pour rester lisible en sombre.
   static const Color green = Color(0xFF34C77B);
   static const Color red = Color(0xFFEF5A6F);
   static const Color orange = Color(0xFFFFA726);
@@ -282,6 +257,24 @@ class StatsScreen extends StatefulWidget {
 
   @override
   State<StatsScreen> createState() => _StatsScreenState();
+}
+
+double _spentForBudget(BudgetModel b, List<TransactionModel> transactions) {
+  final categoryName = (b.category?.nom.isNotEmpty ?? false)
+      ? b.category!.nom
+      : b.nom;
+
+  return transactions
+      .where((t) {
+        if (!t.isExpense) return false;
+        if (t.category.toLowerCase() != categoryName.toLowerCase()) {
+          return false;
+        }
+        if (b.dateDebut != null && t.date.isBefore(b.dateDebut!)) return false;
+        if (b.dateFin != null && t.date.isAfter(b.dateFin!)) return false;
+        return true;
+      })
+      .fold<double>(0, (sum, t) => sum + t.amount);
 }
 
 class _StatsScreenState extends State<StatsScreen> {
@@ -478,13 +471,6 @@ class _StatsScreenState extends State<StatsScreen> {
         )
         .toList();
 
-    // ---- Conseils générés dynamiquement ----
-    // final advices = _buildAdvices(
-    //   categoryStats: categoryStats,
-    //   depensesVariation: depensesVariation,
-    //   budgets: activeBudgets,
-    // );
-
     return RefreshIndicator(
       onRefresh: _refresh,
       child: ListView(
@@ -524,7 +510,7 @@ class _StatsScreenState extends State<StatsScreen> {
           const SizedBox(height: 16),
           _buildEvolutionCard(evolution),
           const SizedBox(height: 16),
-          _buildBudgetsCard(activeBudgets),
+          _buildBudgetsCard(activeBudgets, transactions),
           const SizedBox(height: 16),
           // _buildAdvicesCard(advices),
         ],
@@ -575,39 +561,6 @@ class _StatsScreenState extends State<StatsScreen> {
       ),
     );
   }
-  // Widget _buildAppBar() {
-  //   return Padding(
-  //     padding: const EdgeInsets.fromLTRB(8, 4, 16, 4),
-  //     child: Row(
-  //       children: [
-  //         IconButton(
-  //           icon: Icon(Icons.arrow_back, color: _p.textDark),
-  //           onPressed: _handleBack,
-  //         ),
-  //         Expanded(
-  //           child: Text(
-  //             'Statistiques',
-  //             textAlign: TextAlign.center,
-  //             style: TextStyle(
-  //               fontSize: 18,
-  //               fontWeight: FontWeight.w700,
-  //               color: _p.textDark,
-  //             ),
-  //           ),
-  //         ),
-  //         Container(
-  //           width: 34,
-  //           height: 34,
-  //           decoration: BoxDecoration(
-  //             color: _p.accent,
-  //             shape: BoxShape.circle,
-  //           ),
-  //           child: Icon(Icons.person, color: _p.onAccent, size: 18),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   // -------------------------------------------------------------------
   // SELECTEUR DE PERIODE
@@ -1415,7 +1368,9 @@ class _StatsScreenState extends State<StatsScreen> {
   // -------------------------------------------------------------------
   // CARD: ETAT DES BUDGETS
   // -------------------------------------------------------------------
-  Widget _buildBudgetsCard(List<BudgetModel> budgets) {
+  Widget _buildBudgetsCard(
+    List<BudgetModel> budgets,
+    List<TransactionModel> transactions) {
     return _card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1466,22 +1421,21 @@ class _StatsScreenState extends State<StatsScreen> {
                 padding: EdgeInsets.only(
                   bottom: i == budgets.length - 1 ? 0 : 18,
                 ),
-                child: _budgetRow(budgets[i]),
+                child: _budgetRow(budgets[i], _spentForBudget(budgets[i], transactions)),
               ),
         ],
       ),
-    );
+    ); // fin
   }
 
-  Widget _budgetRow(BudgetModel b) {
-    final exceeded = b.estDepasse;
+  Widget _budgetRow(BudgetModel b, double spent) {
+    final exceeded = spent > b.montant;
+    final restant = b.montant - spent;
     final barColor = exceeded ? _Palette.red : _Palette.green;
-    final exactPercent = b.montant <= 0
-        ? 0.0
-        : (b.montantDepense / b.montant) * 100;
+    final exactPercent = b.montant <= 0 ? 0.0 : (spent / b.montant) * 100;
     final progress = b.montant <= 0
         ? 0.0
-        : (b.montantDepense / b.montant).clamp(0, 1).toDouble();
+        : (spent / b.montant).clamp(0, 1).toDouble();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1508,8 +1462,8 @@ class _StatsScreenState extends State<StatsScreen> {
         const SizedBox(height: 4),
         Text(
           exceeded
-              ? 'Dépassé de ${_formatFcfa(b.montantDepense - b.montant)} F'
-              : 'Reste : ${_formatFcfa(b.montantRestant)} FCFA',
+              ? 'Dépassé de ${_formatFcfa(spent - b.montant)} F'
+              : 'Reste : ${_formatFcfa(restant)} FCFA',
           style: TextStyle(
             fontSize: 12,
             color: exceeded ? _Palette.red : _p.textGrey,
@@ -1531,7 +1485,7 @@ class _StatsScreenState extends State<StatsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '${_formatFcfa(b.montantDepense)} FCFA',
+              '${_formatFcfa(spent)} FCFA',
               style: TextStyle(fontSize: 11.5, color: _p.textGrey),
             ),
             Text(

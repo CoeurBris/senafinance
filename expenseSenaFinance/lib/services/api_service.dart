@@ -199,6 +199,7 @@ class ApiService {
   Future<Map<String, dynamic>> fetchDashboardData() async {
     final response = await get('/dashboard');
     final data = response['data'] ?? response;
+    debugPrint('📦 Dashboard response: $data');
     return Map<String, dynamic>.from(data);
   }
 

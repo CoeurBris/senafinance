@@ -85,14 +85,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/green_flowers_bg.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
+              color: Colors.white,
             ),
           ),
+          // Positioned.fill(
+          //   child: Container(
+          //     width: MediaQuery.of(context).size.width,
+          //     height: MediaQuery.of(context).size.height,
+          //     decoration: const BoxDecoration(
+          //       image: DecorationImage(
+          //         image: AssetImage('assets/images/green_flowers_bg.png'),
+          //         fit: BoxFit.cover,
+          //       ),
+          //     ),
+          //   ),
+          // ),
 
           // 2. Contenu centré avec effet de verre (Glassmorphism)
           Center(

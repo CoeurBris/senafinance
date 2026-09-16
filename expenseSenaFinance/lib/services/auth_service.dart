@@ -8,7 +8,7 @@ class AuthService {
   /// Ajustement automatique selon la plateforme sans crash sur le Web
   static String get baseUrl {
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://192.168.8.60:3005/api'; // Émulateur Android
+      return 'http://localhost:3005/api'; // Émulateur Android
     }
     return 'http://localhost:3005/api'; // iOS, Web ou Desktop
   }

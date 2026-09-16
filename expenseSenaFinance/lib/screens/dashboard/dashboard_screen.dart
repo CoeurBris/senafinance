@@ -9,7 +9,7 @@ import 'package:app_expenses/providers/notification_provider.dart';
 import 'package:app_expenses/providers/transaction_provider.dart';
 import 'package:app_expenses/repositories/category_repository.dart';
 import 'package:app_expenses/screens/expenses/add_expense_screen.dart';
-import 'package:app_expenses/screens/objectif_depense_screen.dart';
+import 'package:app_expenses/screens/objectifs/objectif_depense_screen.dart';
 import 'package:app_expenses/screens/profile/profile_screen.dart';
 import 'package:app_expenses/screens/settings_screen.dart';
 import 'package:app_expenses/screens/support_screen.dart';
@@ -19,8 +19,6 @@ import 'package:app_expenses/services/auth_service.dart';
 import 'package:app_expenses/services/expense_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../../utils/date_utils.dart';
 import '../budget/budget_screen.dart';
 // Adapte ce chemin si ton AddBudgetScreen se trouve ailleurs
 import '../budget/add_budget_screen.dart';
@@ -52,11 +50,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _refreshData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ExpenseProvider>().loadExpenses();
-      context.read<BudgetProvider>().loadBudgets();
-      context.read<TransactionProvider>().loadTransactions();
+      _refreshData();
+      // context.read<ExpenseProvider>().loadExpenses();
+      // context.read<BudgetProvider>().loadBudgets();
+      // context.read<TransactionProvider>().loadTransactions();
       context.read<NotificationProvider>().loadNotifications();
     });
   }
@@ -64,6 +62,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _refreshData() {
     if (!mounted) return;
     setState(() {
+      // NB : _dashboardFuture ne sert plus qu'aux infos utilisateur
+      // (nom / email / photo pour l'AppBar et le Drawer) et à l'état
+      // d'erreur global. Les listes Dépenses/Budgets/Transactions ne
+      // dépendent plus de cet appel — voir les Providers ci-dessous.
       _dashboardFuture = _apiService.fetchDashboardData();
       _categoriesFuture = _categoryRepository.getCategories();
     });
@@ -289,16 +291,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             final data = snapshot.data ?? {};
 
-            final List rawExpenses = List.from(data['recent_expenses'] ?? []);
-            rawExpenses.sort((a, b) {
-              final dateA =
-                  DateTime.tryParse(a['date']?.toString() ?? '') ??
-                  DateTime(1970);
-              final dateB =
-                  DateTime.tryParse(b['date']?.toString() ?? '') ??
-                  DateTime(1970);
-              return dateB.compareTo(dateA);
-            });
+            // FIX (Niveau 1) : on ne calcule plus `rawExpenses` depuis
+            // `data['recent_expenses']` ici — les sections filtrées lisent
+            // désormais directement les Providers (voir plus bas), qui sont
+            // la seule source déjà à jour (c'est elle qui alimente aussi les
+            // cartes de résumé en haut de l'écran).
 
             return SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -348,10 +345,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(height: 8),
                     _buildActivitesRecentes(),
                   ] else if (_selectedFilter == 'Dépenses')
-                    _buildAllExpensesSection(rawExpenses)
+                    // FIX (Niveau 1+2) : lit ExpenseProvider, plus rawExpenses
+                    _buildAllExpensesSection()
                   else if (_selectedFilter == 'Budgets')
-                    _buildAllBudgetsSection(data)
+                    // FIX (Niveau 1+3) : lit BudgetProvider, plus data['budgets']
+                    _buildAllBudgetsSection()
                   else if (_selectedFilter == 'Transactions')
+                    // FIX (Niveau 4) : implémentation réelle via TransactionProvider
                     _buildAllTransactionsSection()
                   else if (_selectedFilter == 'Activités')
                     _buildToutesLesActivites(),
@@ -371,28 +371,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ---------------------------------------------------------------------
   // SECTION : Toutes les dépenses
+  // FIX (Niveau 2) : source = ExpenseProvider (plus /dashboard).
+  // Garde le menu Modifier/Supprimer via _buildExpenseTile(ExpenseModel).
   // ---------------------------------------------------------------------
-  Widget _buildAllExpensesSection(List rawExpenses) {
+  Widget _buildAllExpensesSection() {
+    final expenses = context.watch<ExpenseProvider>().expenses.toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Toutes les Dépenses'),
         const SizedBox(height: 12),
-        if (rawExpenses.isEmpty)
+        if (expenses.isEmpty)
           _buildEmptyExpensesState(context)
         else
-          ...rawExpenses.map((exp) => _buildExpenseTile(exp)),
+          ...expenses.map((exp) => _buildExpenseTile(exp)),
       ],
     );
   }
 
   // ---------------------------------------------------------------------
   // SECTION : Tous les budgets
+  // FIX (Niveau 3) : source = BudgetProvider (plus /dashboard).
   // ---------------------------------------------------------------------
-  Widget _buildAllBudgetsSection(Map<String, dynamic> data) {
-    final List budgets = List.from(
-      data['budgets'] ?? data['recent_budgets'] ?? [],
-    );
+  Widget _buildAllBudgetsSection() {
+    final budgets = context.watch<BudgetProvider>().budgets;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,10 +432,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildBudgetTile(dynamic budget) {
-    final String name = budget['name']?.toString() ?? 'Budget';
-    final double amount = (budget['amount'] as num? ?? 0).toDouble();
-    final double spent = (budget['spent'] as num? ?? 0).toDouble();
+  // FIX (Niveau 3) : accepte un BudgetModel et lit les bons getters
+  // (montant / montantDepense / nom) au lieu des clés Map 'amount'/'spent'
+  // qui ne correspondent pas au modèle réel (voir budget_model.dart).
+  Widget _buildBudgetTile(BudgetModel budget) {
+    final String name = budget.nom;
+    final double amount = budget.montant;
+    final double spent = budget.montantDepense;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -488,18 +495,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ---------------------------------------------------------------------
   // SECTION : Toutes les transactions
+  // FIX (Niveau 4) : implémentation réelle via TransactionProvider,
+  // au lieu du SizedBox(height: 400) vide.
   // ---------------------------------------------------------------------
   Widget _buildAllTransactionsSection() {
+    final transactions = context.watch<TransactionProvider>().transactions
+        .map(_depuisTransaction)
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Toutes les Transactions'),
         const SizedBox(height: 12),
-        // Adapte cet appel à ton vrai service de transactions
-        SizedBox(
-          height: 400,
-          // child: TransactionsScreen(), // si ce widget est autonome
-        ),
+        if (transactions.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              'Aucune transaction pour le moment',
+              style: TextStyle(color: Colors.black45, fontSize: 12),
+            ),
+          )
+        else
+          ...transactions.map(_buildActivityTile),
       ],
     );
   }
@@ -1175,21 +1194,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ---------------------------------------------------------------------
   // DÉPENSES RÉCENTES — cards arrondies + menu Modifier/Supprimer
+  // FIX (Niveau 2) : accepte un ExpenseModel au lieu d'une Map dynamique,
+  // pour rester cohérent avec ExpenseProvider.expenses (source de vérité).
   // ---------------------------------------------------------------------
 
-  Widget _buildExpenseTile(dynamic exp) {
-    final String category = exp['category']?.toString() ?? 'Général';
-    final String title = exp['title']?.toString() ?? 'Dépense';
-    final rawDate = exp['date'];
-
-    String formattedDate = 'Date non disponible';
-    if (rawDate != null) {
-      if (rawDate is String) {
-        formattedDate = AppDateUtils.formatDate(rawDate);
-      } else if (rawDate is DateTime) {
-        formattedDate = AppDateUtils.formatDate(rawDate.toIso8601String());
-      }
-    }
+  Widget _buildExpenseTile(ExpenseModel exp) {
+    final String category = exp.categorie;
+    final String title = exp.titre.isNotEmpty ? exp.titre : category;
+    final String formattedDate = formatDateIso(exp.date);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -1295,7 +1307,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  void _handleExpenseAction(String action, dynamic exp) async {
+  // FIX (Niveau 2) : accepte un ExpenseModel, et surtout appelle réellement
+  // ExpenseProvider.deleteExpense(id) — avant, "Supprimer" ne faisait que
+  // rafraîchir le dashboard sans jamais appeler l'API de suppression.
+  //
+  // ⚠️ Vérifie que ExpenseModel expose bien un champ `id` (int?) — adapte
+  // le nom si besoin (ex: exp.expenseId).
+  void _handleExpenseAction(String action, ExpenseModel exp) async {
     if (action == 'edit') {
       // NB : showAddExpenseSheet ne gère pour l'instant que l'AJOUT.
       // Pour éditer une dépense existante, il faudra soit une variante
@@ -1315,7 +1333,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           title: const Text('Supprimer la dépense'),
           content: Text(
-            'Voulez-vous vraiment supprimer "${exp['title'] ?? 'cette dépense'}" ?',
+            'Voulez-vous vraiment supprimer "${exp.titre.isNotEmpty ? exp.titre : 'cette dépense'}" ?',
           ),
           actions: [
             TextButton(
@@ -1334,9 +1352,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
 
       if (confirmed == true) {
-        // Appelle ici ta méthode de suppression, ex:
-        // await _apiService.deleteExpense(exp['id']);
-        _refreshData();
+        if (exp.id == null) return;
+
+        final success =
+            // ignore: use_build_context_synchronously
+            await context.read<ExpenseProvider>().deleteExpense(exp.id!);
+
+        if (!mounted) return;
+
+        if (success) {
+          // Le Provider a déjà retiré l'élément et notifié ses listeners ;
+          // on rafraîchit quand même le reste (budgets/transactions liés).
+          _refreshData();
+        } else {
+          final error = context.read<ExpenseProvider>().error;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error ?? 'Échec de la suppression.'),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
       }
     }
   }
@@ -1432,6 +1468,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (result == true) _refreshData();
                 },
               ),
+              const SizedBox(height: 40),
             ],
           ),
         );

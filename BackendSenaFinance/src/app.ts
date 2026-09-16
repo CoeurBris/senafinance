@@ -136,8 +136,14 @@ app.use((req: Request, res: Response) => {
 // Démarrage du serveur
 // =====================================================
 
-const PORT = process.env.PORT_SERVER || process.env.PORT || 3000;
+const PORT = Number(process.env.PORT_SERVER || process.env.PORT || 3000);
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`Serveur démarré sur le port ${PORT}`);
 });
+
+// const PORT = process.env.PORT_SERVER || process.env.PORT || 3000;
+
+// app.listen(PORT, () => {
+//     console.log(`Serveur démarré sur le port ${PORT}`);
+// });
