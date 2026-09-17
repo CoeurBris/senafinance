@@ -1,0 +1,28 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.permissionsRoutes = void 0;
+const permission_controller_1 = require("../controller/permission.controller");
+const permissionsRoutes = (router) => {
+    // router.post('/api/permissions',checkPermission('AddPermission'), createPermission);
+    // router.get('/api/permissions', getPermissions);
+    // router.get('/api/all/permissions', checkPermission('ListePermission'),getAllPermissions);
+    // router.get('/api/permissions/:id', getPermission);
+    // router.get('/api/resteante/permissions/:userId', getPermissionNotIn);
+    // router.delete('/api/permissions/:id', checkPermission('DeletePermission'),deletePermission);
+    // router.put('/api/permissions/:id', checkPermission('EditPermission'),updatePermission);
+    // router.post('/api/permissions', checkPermission('AddPermission'),createPermission);
+    // router.get('/api/permissions',checkPermission('ViewPermissions'), getPermissions);
+    // router.get('/api/all/permissions', checkPermission('ListPermission'),getAllPermissions);
+    // router.get('/api/permissions/:id', checkPermission('ViewPermission'),getPermission);
+    // router.get('/api/resteante/permissions/:userId', checkPermission('PermissionNotIn'),getPermissionNotIn);
+    // router.delete('/api/permissions/:id', checkPermission('DeletePermission'),deletePermission);
+    // router.put('/api/permissions/:id', checkPermission('EditPermission'),updatePermission);
+    router.post('/api/permissions', permission_controller_1.createPermission);
+    router.get('/api/permissions', permission_controller_1.getPermissions);
+    router.get('/api/all/permissions', permission_controller_1.getAllPermissions);
+    router.get('/api/permissions/:id', permission_controller_1.getPermission);
+    router.get('/api/resteante/permissions/:userId', permission_controller_1.getPermissionNotIn);
+    router.delete('/api/permissions/:id', permission_controller_1.deletePermission);
+    router.put('/api/permissions/:id', permission_controller_1.updatePermission);
+};
+exports.permissionsRoutes = permissionsRoutes;

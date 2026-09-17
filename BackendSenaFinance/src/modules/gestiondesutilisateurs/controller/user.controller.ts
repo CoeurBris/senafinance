@@ -7,6 +7,7 @@
   import { paginationAndRechercheInit } from "../../../configs/paginationAndRechercheInit";
   import { Brackets } from "typeorm";
   import { UserRole } from "../entity/UserRole.entity";
+  import { MulterFile } from "../../../configs/uploads";
 
   export const createUser = async (req: Request, res: Response) => {
     try {
@@ -246,8 +247,12 @@
     }
   };
 
+interface RequestWithFile extends Request {
+  file?: MulterFile;
+}
+
 export const updatePhoto = async (
-  req: Request,
+  req: RequestWithFile,
   res: Response
 ) => {
   try {
