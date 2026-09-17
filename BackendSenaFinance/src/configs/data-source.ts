@@ -15,37 +15,40 @@ import { User } from "../modules/gestiondesutilisateurs/entity/user.entity";
 import { Permission } from "../modules/gestiondesutilisateurs/entity/permission.entity";
 import { Role } from "../modules/gestiondesutilisateurs/entity/Role.entity";
 import { RolePermission } from "../modules/gestiondesutilisateurs/entity/RolePermission.entity";
-import { UserRole } from "../modules/gestiondesutilisateurs/entity/UserRole.entity"; // 👈 Ajout de l'import
+import { UserRole } from "../modules/gestiondesutilisateurs/entity/UserRole.entity";
 import { JournalConnexion } from "../modules/gestiondesutilisateurs/entity/journalConnexion";
 
 dotenv.config();
 
-// console.log("DB_PASSWORD lu:", process.env.DB_PASSWORD);
+const isProduction = process.env.NODE_ENV === "production";
 
 export const myDataSource = new DataSource({
   type: "postgres",
   host: process.env.DB_HOST || "localhost",
   port: parseInt(process.env.DB_PORT || "5432", 10),
   username: process.env.DB_USER || "postgres",
-  password: process.env.DB_PASSWORD || "Admin123",
+  password: process.env.DB_PASSWORD, // plus de fallback en clair
   database: process.env.DB_NAME || "expense_db",
+  ssl: isProduction ? { rejectUnauthorized: false } : false,
   entities: [
-    User, 
-    Role, 
-    RolePermission, 
-    UserRole, // 👈 Ajout indispensable ici
-    JournalConnexion, 
-    Permission, 
-    Category, 
-    Expense, 
-    Budget, 
+    User,
+    Role,
+    RolePermission,
+    UserRole,
+    JournalConnexion,
+    Permission,
+    Category,
+    Expense,
+    Budget,
     NotificationEntity,
     Objectif,
-    Versement, // 👈 Ajout de l'entité Versement
-    Transaction, // 👈 Ajout de l'entité Transaction
+    Versement,
+    Transaction,
   ],
-  migrations: ["src/migrations/*.ts"],
+  migrations: [
+    isProduction ? "dist/migrations/*.js" : "src/migrations/*.ts",
+  ],
   migrationsTableName: "migrations",
-  logging: true,
+  logging: !isProduction, // désactivez les logs SQL verbeux en prod
   synchronize: false,
 });

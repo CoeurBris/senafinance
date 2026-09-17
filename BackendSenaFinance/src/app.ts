@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -22,6 +23,14 @@ import { budgetRoutes } from "./modules/gestiondesdepenses/route/budget.route";
 import { objectifRoutes } from "./modules/gestiondesdepenses/route/objectif.route";
 import { dashboardRoutes } from "./modules/gestiondesdepenses/route/dashboard.route";
 import { transactionRoutes } from "./modules/gestiondesdepenses/route/transaction.route";
+
+// =====================================================
+// Chemin de base des uploads (persistant sur Render, local sinon)
+// =====================================================
+
+const UPLOADS_BASE_PATH =
+    process.env.UPLOADS_PATH ||
+    path.join(__dirname, "../uploads");
 
 // =====================================================
 // Initialisation de la base de données
@@ -49,7 +58,6 @@ const app = express();
 app.use(
     cors({
         origin: (origin, callback) => {
-            // Autorise les requêtes sans origine (comme les apps mobiles/Postman)
             if (!origin) return callback(null, true);
 
             const allowedOrigins = [
@@ -57,14 +65,13 @@ app.use(
                 "http://192.168.8.59:3003",
                 "http://localhost",
                 "http://localhost:3005",
-                "http://192.168.8.60:3005", 
+                "http://192.168.8.60:3005",
             ];
 
-            // Accepte toutes les origines localhost avec n'importe quel port (ex: Flutter Web)
             if (allowedOrigins.includes(origin) || /^http:\/\/localhost:\d+$/.test(origin)) {
                 callback(null, true);
             } else {
-                callback(null, true); // Ou callback(new Error("CORS non autorisé")) en prod
+                callback(null, true);
             }
         },
         credentials: true,
@@ -76,13 +83,10 @@ app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ limit: "5mb", extended: true }));
 app.use(cookieParser());
 
-// Rendre le dossier uploads accessible publiquement (pour que Flutter
-//  puisse charger les images via une simple URL http)
+// Rendre le dossier uploads accessible publiquement
 app.use(
     '/uploads',
-    express.static(
-        path.join(__dirname, '../uploads')
-    )
+    express.static(UPLOADS_BASE_PATH)
 );
 
 // =====================================================
@@ -108,14 +112,12 @@ transactionRoutes(app);
 // =====================================================
 
 const requiredDirs = [
-    "uploads/Personnels",
-    "uploads/Demandes",
-    "uploads/Justificatifs",
-    "uploads/avatars",
+    "avatars",
+    "Finances",
 ];
 
 requiredDirs.forEach((dir) => {
-    const fullPath = path.join(__dirname, "..", dir);
+    const fullPath = path.join(UPLOADS_BASE_PATH, dir);
     if (!fs.existsSync(fullPath)) {
         fs.mkdirSync(fullPath, { recursive: true });
         console.log(`Dossier créé : ${fullPath}`);
@@ -136,14 +138,13 @@ app.use((req: Request, res: Response) => {
 // Démarrage du serveur
 // =====================================================
 
-const PORT = Number(process.env.PORT_SERVER || process.env.PORT || 3000);
+// const PORT = Number(process.env.PORT_SERVER || process.env.PORT || 3000);
+
+// app.listen(PORT, "0.0.0.0", () => {
+//     console.log(`Serveur démarré sur le port ${PORT}`);
+// });
+const PORT = Number(process.env.PORT || 3000);
 
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`Serveur démarré sur le port ${PORT}`);
 });
-
-// const PORT = process.env.PORT_SERVER || process.env.PORT || 3000;
-
-// app.listen(PORT, () => {
-//     console.log(`Serveur démarré sur le port ${PORT}`);
-// });

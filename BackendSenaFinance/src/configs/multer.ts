@@ -4,6 +4,20 @@ import fs from 'fs';
 
 /**
  * ============================================================
+ * CHEMIN DE BASE DES UPLOADS
+ * ============================================================
+ *
+ * En production (Render), UPLOADS_PATH pointe vers le disque
+ * persistant monté. En local, on retombe sur le dossier
+ * "uploads" relatif au projet.
+ */
+
+const UPLOADS_BASE_PATH =
+  process.env.UPLOADS_PATH ||
+  path.join(__dirname, '../../uploads');
+
+/**
+ * ============================================================
  * TYPES MIME
  * ============================================================
  */
@@ -41,16 +55,11 @@ const MIME_TYPES: { [key: string]: string } = {
 
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
-    const uploadBasePath = path.join(
-      __dirname,
-      '../../uploads'
-    );
-
     const subFolder =
       req.body.dossier || 'Autres';
 
     const finalPath = path.join(
-      uploadBasePath,
+      UPLOADS_BASE_PATH,
       subFolder
     );
 
@@ -95,8 +104,8 @@ const storage = multer.diskStorage({
  */
 
 const AVATAR_UPLOAD_PATH = path.join(
-  __dirname,
-  '../../uploads/avatars'
+  UPLOADS_BASE_PATH,
+  'avatars'
 );
 
 if (!fs.existsSync(AVATAR_UPLOAD_PATH)) {
@@ -142,8 +151,8 @@ const avatarStorage = multer.diskStorage({
  */
 
 const FINANCE_UPLOAD_PATH = path.join(
-  __dirname,
-  '../../uploads/Finances'
+  UPLOADS_BASE_PATH,
+  'Finances'
 );
 
 if (!fs.existsSync(FINANCE_UPLOAD_PATH)) {
