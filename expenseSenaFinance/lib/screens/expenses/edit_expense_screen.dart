@@ -1,12 +1,11 @@
-import 'package:app_expenses/core/widgets/app_snackbar.dart';
-import 'package:app_expenses/models/category_model.dart';
-import 'package:app_expenses/repositories/category_repository.dart';
-import 'package:app_expenses/services/expense_service.dart';
+
 import 'package:flutter/material.dart';
+import 'package:senafinance/core/widgets/app_snackbar.dart';
+import 'package:senafinance/models/category_model.dart';
+import 'package:senafinance/repositories/category_repository.dart';
+import 'package:senafinance/services/expense_service.dart';
 
 class EditExpenseScreen extends StatefulWidget {
-  /// La dépense à modifier, telle que renvoyée par l'API
-  /// (doit contenir au minimum : id, title, amount, date, categoryId)
   final Map<String, dynamic> expense;
 
   const EditExpenseScreen({super.key, required this.expense});

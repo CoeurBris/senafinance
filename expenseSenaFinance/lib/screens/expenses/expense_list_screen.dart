@@ -1,8 +1,9 @@
-import 'package:app_expenses/providers/currency_provider.dart';
-import 'package:app_expenses/providers/locale_provider.dart';
-import 'package:app_expenses/services/expense_service.dart';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:senafinance/providers/currency_provider.dart';
+import 'package:senafinance/providers/locale_provider.dart';
+import 'package:senafinance/services/expense_service.dart';
 import 'add_expense_screen.dart';
 import 'edit_expense_screen.dart';
 

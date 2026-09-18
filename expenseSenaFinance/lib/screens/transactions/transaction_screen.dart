@@ -1,8 +1,9 @@
-import 'package:app_expenses/models/transaction_model.dart';
-import 'package:app_expenses/providers/transaction_provider.dart';
-import 'package:app_expenses/screens/transactions/add_transaction_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:senafinance/models/transaction_model.dart';
+import 'package:senafinance/providers/transaction_provider.dart';
+import 'package:senafinance/screens/transactions/add_transaction_screen.dart';
 
 /// ---------------------------------------------------------------------
 /// Couleurs & constantes

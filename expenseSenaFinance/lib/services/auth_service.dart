@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:app_expenses/core/app_constant.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:senafinance/core/app_constant.dart';
 
 class AuthService {
   /// Ajustement automatique selon la plateforme sans crash sur le Web

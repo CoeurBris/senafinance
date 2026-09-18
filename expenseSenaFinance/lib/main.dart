@@ -1,15 +1,17 @@
-import 'package:app_expenses/l10n/app_localizations.dart';
-import 'package:app_expenses/providers/currency_provider.dart';
-import 'package:app_expenses/providers/notification_provider.dart';
-import 'package:app_expenses/providers/objectif_provider.dart';
-import 'package:app_expenses/providers/theme_provider.dart';
-import 'package:app_expenses/providers/transaction_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:app_expenses/providers/expense_provider.dart';
-import 'package:app_expenses/providers/budget_provider.dart';
-import 'package:app_expenses/providers/category_provider.dart';
+import 'package:senafinance/l10n/app_localizations.dart';
+import 'package:senafinance/providers/budget_provider.dart';
+import 'package:senafinance/providers/category_provider.dart';
+import 'package:senafinance/providers/currency_provider.dart';
+import 'package:senafinance/providers/expense_provider.dart';
+import 'package:senafinance/providers/notification_provider.dart';
+import 'package:senafinance/providers/objectif_provider.dart';
+import 'package:senafinance/providers/theme_provider.dart';
+import 'package:senafinance/providers/transaction_provider.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme.dart';
 import 'providers/locale_provider.dart';

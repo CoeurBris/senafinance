@@ -1,6 +1,7 @@
-import 'package:app_expenses/models/notification_model.dart';
-import 'package:app_expenses/repositories/notification_repository.dart';
+
 import 'package:flutter/foundation.dart';
+import 'package:senafinance/models/notification_model.dart';
+import 'package:senafinance/repositories/notification_repository.dart';
 
 class NotificationProvider extends ChangeNotifier {
   final NotificationRepository _repository;

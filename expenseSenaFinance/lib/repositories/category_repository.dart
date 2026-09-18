@@ -1,5 +1,7 @@
-import 'package:app_expenses/models/category_model.dart';
-import 'package:app_expenses/services/category_service.dart';
+
+
+import 'package:senafinance/models/category_model.dart';
+import 'package:senafinance/services/category_service.dart';
 
 class CategoryRepository {
   final CategoryService _categoryService;

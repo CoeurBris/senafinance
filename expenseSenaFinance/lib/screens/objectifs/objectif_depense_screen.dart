@@ -1,8 +1,9 @@
-import 'package:app_expenses/models/objectif_model.dart';
-import 'package:app_expenses/providers/objectif_provider.dart';
-import 'package:app_expenses/screens/objectifs/objectif_detail_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:senafinance/models/objectif_model.dart';
+import 'package:senafinance/providers/objectif_provider.dart';
+import 'package:senafinance/screens/objectifs/objectif_detail_screen.dart';
 
 /// ---------------------------------------------------------------------------
 /// ECRAN PRINCIPAL : Liste des objectifs d'épargne (branché sur ObjectifProvider)
@@ -18,8 +19,6 @@ class _ObjectifScreenState extends State<ObjectifScreen> {
   @override
   void initState() {
     super.initState();
-    // On attend la fin du premier build pour éviter d'appeler
-    // notifyListeners() pendant la construction du widget tree.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ObjectifProvider>().loadObjectifs();
     });
@@ -38,8 +37,6 @@ class _ObjectifScreenState extends State<ObjectifScreen> {
         '${d.month.toString().padLeft(2, '0')}/${d.year}';
   }
 
-  // Icône/couleur déterministes à partir du titre, puisque le modèle
-  // ne stocke pas ces attributs côté backend.
   static const _couleurs = [
     Colors.teal,
     Colors.blueAccent,

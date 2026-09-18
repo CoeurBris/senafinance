@@ -1,13 +1,9 @@
 import 'dart:ui';
-import 'package:app_expenses/screens/auth/register_screen.dart';
-import 'package:app_expenses/screens/dashboard/dashboard_screen.dart';
-import 'package:app_expenses/services/auth_service.dart';
+
 import 'package:flutter/material.dart';
-
-// Assurez-vous d'importer vos services et votre écran principal
-// import 'package:expenses/services/auth_service.dart';
-// import 'package:expenses/screens/dashboard_screen.dart';
-
+import 'package:senafinance/screens/auth/register_screen.dart';
+import 'package:senafinance/screens/dashboard/dashboard_screen.dart';
+import 'package:senafinance/services/auth_service.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 

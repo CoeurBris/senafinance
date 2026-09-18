@@ -1,6 +1,7 @@
-import 'package:app_expenses/models/expense_model.dart';
-import 'package:app_expenses/repositories/expense_repository.dart';
+
 import 'package:flutter/foundation.dart';
+import 'package:senafinance/models/expense_model.dart';
+import 'package:senafinance/repositories/expense_repository.dart';
 
 class ExpenseProvider extends ChangeNotifier {
   final ExpenseRepository _repository;

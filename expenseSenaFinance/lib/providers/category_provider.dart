@@ -1,6 +1,7 @@
-import 'package:app_expenses/models/category_model.dart';
-import 'package:app_expenses/repositories/category_repository.dart';
+
 import 'package:flutter/foundation.dart';
+import 'package:senafinance/models/category_model.dart';
+import 'package:senafinance/repositories/category_repository.dart';
 
 
 class CategoryProvider extends ChangeNotifier {

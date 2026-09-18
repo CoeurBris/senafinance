@@ -1,5 +1,7 @@
-import 'package:app_expenses/models/expense_model.dart';
-import 'package:app_expenses/services/expense_service.dart';
+
+
+import 'package:senafinance/models/expense_model.dart';
+import 'package:senafinance/services/expense_service.dart';
 
 class ExpenseRepository {
   final ExpenseService _expenseService;

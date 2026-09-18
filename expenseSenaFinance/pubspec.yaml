@@ -1,5 +1,5 @@
-name: app_expenses
-description: "SenaTrack - Application de gestion des dépenses"
+name: senafinance
+description: "SenaFinance - Application de gestion des dépenses"
 publish_to: 'none'
 version: 1.0.0+1
 

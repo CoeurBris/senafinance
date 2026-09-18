@@ -1,8 +1,8 @@
-import 'package:app_expenses/core/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:app_expenses/models/budget_model.dart';
 import 'package:provider/provider.dart';
-import 'package:app_expenses/providers/budget_provider.dart';
+import 'package:senafinance/core/theme.dart';
+import 'package:senafinance/models/budget_model.dart';
+import 'package:senafinance/providers/budget_provider.dart';
 import 'add_budget_screen.dart';
 import 'edit_budget_screen.dart';
 

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:app_expenses/providers/notification_provider.dart';
-import 'package:app_expenses/models/notification_model.dart';
+import 'package:senafinance/models/notification_model.dart';
+import 'package:senafinance/providers/notification_provider.dart';
+
 import 'package:timeago/timeago.dart' as timeago; // ajoute la dépendance si tu veux un "il y a 2h"
 
 class NotificationScreen extends StatefulWidget {

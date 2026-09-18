@@ -1,6 +1,6 @@
-import 'package:app_expenses/core/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:senafinance/core/theme.dart';
 
 /// Libellé de section (ex: "SÉCURITÉ DU COMPTE")
 class SectionLabel extends StatelessWidget {

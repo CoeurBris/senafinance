@@ -1,6 +1,8 @@
-import 'package:app_expenses/models/notification_model.dart';
-import 'package:app_expenses/services/notification_service.dart';
 
+
+
+import 'package:senafinance/models/notification_model.dart';
+import 'package:senafinance/services/notification_service.dart';
 
 class NotificationRepository {
   final NotificationService _notificationService;

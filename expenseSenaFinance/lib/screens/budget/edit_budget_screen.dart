@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:senafinance/core/widgets/app_snackbar.dart';
+import 'package:senafinance/models/budget_model.dart';
+import 'package:senafinance/providers/budget_provider.dart';
+import 'package:senafinance/providers/category_provider.dart';
 
-import 'package:app_expenses/core/widgets/app_snackbar.dart';
-import 'package:app_expenses/models/budget_model.dart';
-import 'package:app_expenses/providers/budget_provider.dart';
-import 'package:app_expenses/providers/category_provider.dart';
+
 
 class EditBudgetScreen extends StatefulWidget {
   final BudgetModel budget;

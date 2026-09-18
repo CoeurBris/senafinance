@@ -1,7 +1,7 @@
-// lib/repositories/transaction_repository.dart
 
-import 'package:app_expenses/models/transaction_model.dart';
-import 'package:app_expenses/services/transaction_service.dart';
+
+import 'package:senafinance/models/transaction_model.dart';
+import 'package:senafinance/services/transaction_service.dart';
 
 class TransactionRepository {
   final TransactionService _service;

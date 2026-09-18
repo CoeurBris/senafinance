@@ -1,3 +1,3 @@
-# expenses
+# senafince
 
 A new Flutter project.

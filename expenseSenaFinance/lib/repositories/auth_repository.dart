@@ -1,7 +1,9 @@
 
 
-import 'package:app_expenses/models/user_model.dart';
-import 'package:app_expenses/services/auth_service.dart';
+
+
+import 'package:senafinance/models/user_model.dart';
+import 'package:senafinance/services/auth_service.dart';
 
 class AuthRepository {
   final AuthService _authService;

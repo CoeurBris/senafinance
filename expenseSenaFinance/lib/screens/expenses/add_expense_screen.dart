@@ -1,13 +1,12 @@
-import 'package:app_expenses/core/widgets/app_snackbar.dart';
-import 'package:app_expenses/models/category_model.dart';
-import 'package:app_expenses/models/expense_model.dart';
-import 'package:app_expenses/providers/expense_provider.dart';
-import 'package:app_expenses/repositories/category_repository.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:senafinance/core/widgets/app_snackbar.dart';
+import 'package:senafinance/models/category_model.dart';
+import 'package:senafinance/models/expense_model.dart';
+import 'package:senafinance/providers/expense_provider.dart';
+import 'package:senafinance/repositories/category_repository.dart';
 
-/// Ouvre le formulaire d'ajout de dépense en bottom sheet.
-/// Retourne `true` (via Navigator.pop) si l'ajout a réussi.
 Future<bool?> showAddExpenseSheet(BuildContext context) {
   return showModalBottomSheet<bool>(
     context: context,

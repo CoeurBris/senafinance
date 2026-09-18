@@ -1,8 +1,9 @@
 // lib/providers/transaction_provider.dart
 
-import 'package:app_expenses/models/transaction_model.dart';
-import 'package:app_expenses/repositories/transaction_repository.dart';
+
 import 'package:flutter/foundation.dart';
+import 'package:senafinance/models/transaction_model.dart';
+import 'package:senafinance/repositories/transaction_repository.dart';
 
 class TransactionProvider extends ChangeNotifier {
   final TransactionRepository _repository;

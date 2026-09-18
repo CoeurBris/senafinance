@@ -1,26 +1,26 @@
-import 'package:app_expenses/core/widgets/user_avatar.dart';
-import 'package:app_expenses/models/budget_model.dart';
-import 'package:app_expenses/models/category_model.dart';
-import 'package:app_expenses/models/expense_model.dart';
-import 'package:app_expenses/models/transaction_model.dart';
-import 'package:app_expenses/providers/budget_provider.dart';
-import 'package:app_expenses/providers/expense_provider.dart';
-import 'package:app_expenses/providers/notification_provider.dart';
-import 'package:app_expenses/providers/transaction_provider.dart';
-import 'package:app_expenses/repositories/category_repository.dart';
-import 'package:app_expenses/screens/expenses/add_expense_screen.dart';
-import 'package:app_expenses/screens/objectifs/objectif_depense_screen.dart';
-import 'package:app_expenses/screens/profile/profile_screen.dart';
-import 'package:app_expenses/screens/settings_screen.dart';
-import 'package:app_expenses/screens/support_screen.dart';
-import 'package:app_expenses/screens/transactions/transaction_screen.dart';
-import 'package:app_expenses/services/api_service.dart';
-import 'package:app_expenses/services/auth_service.dart';
-import 'package:app_expenses/services/expense_service.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:senafinance/core/widgets/user_avatar.dart';
+import 'package:senafinance/models/budget_model.dart';
+import 'package:senafinance/models/category_model.dart';
+import 'package:senafinance/models/expense_model.dart';
+import 'package:senafinance/models/transaction_model.dart';
+import 'package:senafinance/providers/budget_provider.dart';
+import 'package:senafinance/providers/expense_provider.dart';
+import 'package:senafinance/providers/notification_provider.dart';
+import 'package:senafinance/providers/transaction_provider.dart';
+import 'package:senafinance/repositories/category_repository.dart';
+import 'package:senafinance/screens/expenses/add_expense_screen.dart';
+import 'package:senafinance/screens/objectifs/objectif_depense_screen.dart';
+import 'package:senafinance/screens/profile/profile_screen.dart';
+import 'package:senafinance/screens/settings_screen.dart';
+import 'package:senafinance/screens/support_screen.dart';
+import 'package:senafinance/screens/transactions/transaction_screen.dart';
+import 'package:senafinance/services/api_service.dart';
+import 'package:senafinance/services/auth_service.dart';
+import 'package:senafinance/services/expense_service.dart';
 import '../budget/budget_screen.dart';
-// Adapte ce chemin si ton AddBudgetScreen se trouve ailleurs
 import '../budget/add_budget_screen.dart';
 import '../expenses/expense_list_screen.dart';
 import '../notifications/notification_screen.dart';
@@ -62,10 +62,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _refreshData() {
     if (!mounted) return;
     setState(() {
-      // NB : _dashboardFuture ne sert plus qu'aux infos utilisateur
-      // (nom / email / photo pour l'AppBar et le Drawer) et à l'état
-      // d'erreur global. Les listes Dépenses/Budgets/Transactions ne
-      // dépendent plus de cet appel — voir les Providers ci-dessous.
       _dashboardFuture = _apiService.fetchDashboardData();
       _categoriesFuture = _categoryRepository.getCategories();
     });
@@ -291,12 +287,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             final data = snapshot.data ?? {};
 
-            // FIX (Niveau 1) : on ne calcule plus `rawExpenses` depuis
-            // `data['recent_expenses']` ici — les sections filtrées lisent
-            // désormais directement les Providers (voir plus bas), qui sont
-            // la seule source déjà à jour (c'est elle qui alimente aussi les
-            // cartes de résumé en haut de l'écran).
-
             return SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
@@ -345,13 +335,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(height: 8),
                     _buildActivitesRecentes(),
                   ] else if (_selectedFilter == 'Dépenses')
-                    // FIX (Niveau 1+2) : lit ExpenseProvider, plus rawExpenses
                     _buildAllExpensesSection()
                   else if (_selectedFilter == 'Budgets')
-                    // FIX (Niveau 1+3) : lit BudgetProvider, plus data['budgets']
                     _buildAllBudgetsSection()
                   else if (_selectedFilter == 'Transactions')
-                    // FIX (Niveau 4) : implémentation réelle via TransactionProvider
                     _buildAllTransactionsSection()
                   else if (_selectedFilter == 'Activités')
                     _buildToutesLesActivites(),
@@ -371,8 +358,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ---------------------------------------------------------------------
   // SECTION : Toutes les dépenses
-  // FIX (Niveau 2) : source = ExpenseProvider (plus /dashboard).
-  // Garde le menu Modifier/Supprimer via _buildExpenseTile(ExpenseModel).
   // ---------------------------------------------------------------------
   Widget _buildAllExpensesSection() {
     final expenses = context.watch<ExpenseProvider>().expenses.toList()
@@ -431,10 +416,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ],
     );
   }
-
-  // FIX (Niveau 3) : accepte un BudgetModel et lit les bons getters
-  // (montant / montantDepense / nom) au lieu des clés Map 'amount'/'spent'
-  // qui ne correspondent pas au modèle réel (voir budget_model.dart).
+  
   Widget _buildBudgetTile(BudgetModel budget) {
     final String name = budget.nom;
     final double amount = budget.montant;
@@ -1194,8 +1176,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ---------------------------------------------------------------------
   // DÉPENSES RÉCENTES — cards arrondies + menu Modifier/Supprimer
-  // FIX (Niveau 2) : accepte un ExpenseModel au lieu d'une Map dynamique,
-  // pour rester cohérent avec ExpenseProvider.expenses (source de vérité).
   // ---------------------------------------------------------------------
 
   Widget _buildExpenseTile(ExpenseModel exp) {
@@ -1306,19 +1286,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
-  // FIX (Niveau 2) : accepte un ExpenseModel, et surtout appelle réellement
-  // ExpenseProvider.deleteExpense(id) — avant, "Supprimer" ne faisait que
-  // rafraîchir le dashboard sans jamais appeler l'API de suppression.
-  //
-  // ⚠️ Vérifie que ExpenseModel expose bien un champ `id` (int?) — adapte
-  // le nom si besoin (ex: exp.expenseId).
+  
   void _handleExpenseAction(String action, ExpenseModel exp) async {
     if (action == 'edit') {
-      // NB : showAddExpenseSheet ne gère pour l'instant que l'AJOUT.
-      // Pour éditer une dépense existante, il faudra soit une variante
-      // showEditExpenseSheet(context, expense: exp), soit passer un
-      // paramètre optionnel à showAddExpenseSheet pour pré-remplir les champs.
       final result = await showAddExpenseSheet(context);
       if (result == true) _refreshData();
       return;

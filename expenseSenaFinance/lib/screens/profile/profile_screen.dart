@@ -1,8 +1,9 @@
-import 'package:app_expenses/core/widgets/settings_card.dart';
-import 'package:app_expenses/screens/auth/login_screen.dart';
-import 'package:app_expenses/services/api_service.dart';
-import 'package:app_expenses/services/auth_service.dart';
+
 import 'package:flutter/material.dart';
+import 'package:senafinance/core/widgets/settings_card.dart';
+import 'package:senafinance/screens/auth/login_screen.dart';
+import 'package:senafinance/services/api_service.dart';
+import 'package:senafinance/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _kAccent = Color(0xFF3B6334);

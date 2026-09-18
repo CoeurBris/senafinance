@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:senafinance/core/widgets/app_snackbar.dart';
+import 'package:senafinance/models/category_model.dart';
+import 'package:senafinance/models/transaction_model.dart';
+import 'package:senafinance/providers/transaction_provider.dart';
+import 'package:senafinance/repositories/category_repository.dart';
 
-import 'package:app_expenses/core/widgets/app_snackbar.dart';
-import 'package:app_expenses/models/category_model.dart';
-import 'package:app_expenses/models/transaction_model.dart';
-import 'package:app_expenses/providers/transaction_provider.dart';
-import 'package:app_expenses/repositories/category_repository.dart';
 
 class AddTransactionScreen extends StatefulWidget {
-  /// Si [transaction] est fourni, l'écran s'ouvre en mode "édition" :
-  /// les champs sont pré-remplis et la soumission fait un update
-  /// au lieu d'une création.
   final TransactionModel? transaction;
 
   const AddTransactionScreen({super.key, this.transaction});

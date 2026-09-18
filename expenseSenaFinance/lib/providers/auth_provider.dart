@@ -1,6 +1,7 @@
-import 'package:app_expenses/models/user_model.dart';
-import 'package:app_expenses/repositories/auth_repository.dart';
+
 import 'package:flutter/foundation.dart';
+import 'package:senafinance/models/user_model.dart';
+import 'package:senafinance/repositories/auth_repository.dart';
 
 
 class AuthProvider extends ChangeNotifier {

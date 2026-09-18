@@ -1,5 +1,5 @@
-import 'package:app_expenses/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:senafinance/l10n/app_localizations.dart';
 import '../../services/api_service.dart';
 
 class SupportScreen extends StatefulWidget {

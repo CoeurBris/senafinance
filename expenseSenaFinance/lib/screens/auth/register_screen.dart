@@ -1,7 +1,8 @@
 import 'dart:ui';
-import 'package:app_expenses/screens/dashboard/dashboard_screen.dart';
-import 'package:app_expenses/services/auth_service.dart';
+
 import 'package:flutter/material.dart';
+import 'package:senafinance/screens/dashboard/dashboard_screen.dart';
+import 'package:senafinance/services/auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

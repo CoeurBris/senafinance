@@ -1,7 +1,8 @@
-import 'package:app_expenses/models/objectif_model.dart';
-import 'package:app_expenses/models/versement_model.dart';
-import 'package:app_expenses/repositories/objectif_repository.dart';
+
 import 'package:flutter/foundation.dart';
+import 'package:senafinance/models/objectif_model.dart';
+import 'package:senafinance/models/versement_model.dart';
+import 'package:senafinance/repositories/objectif_repository.dart';
 
 class ObjectifProvider extends ChangeNotifier {
   final ObjectifRepository _repository;

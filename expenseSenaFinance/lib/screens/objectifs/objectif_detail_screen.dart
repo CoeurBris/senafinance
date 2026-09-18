@@ -1,8 +1,9 @@
-import 'package:app_expenses/models/objectif_model.dart';
-import 'package:app_expenses/models/versement_model.dart';
-import 'package:app_expenses/providers/objectif_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:senafinance/models/objectif_model.dart';
+import 'package:senafinance/models/versement_model.dart';
+import 'package:senafinance/providers/objectif_provider.dart';
 
 class ObjectifDetailScreen extends StatefulWidget {
   final int objectifId;
